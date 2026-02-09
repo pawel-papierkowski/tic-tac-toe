@@ -1,0 +1,38 @@
+/********************************
+ * Styles specific to this app. *
+ ********************************/
+
+/* Settings for specific elements. */
+body {
+  /* Game completely centers its content in browser window. */
+  display: flex;
+  justify-content: center; /* Horizontal */
+  align-items: center;     /* Vertical */
+  /* Other stuff. */
+  color-scheme: light;
+}
+
+h1 {
+  color: #484848;
+  text-align: center;
+  text-shadow: 0 0 5px currentColor; /* The glow matches the text */
+}
+
+/* Menu. */
+
+.menu div {
+  width: 100%;
+}
+
+.menu p {
+  width: 100%;
+  margin: 6px 0px;
+}
+
+.menu select {
+  text-align: center;
+}
+
+.menu button {
+  width: 100%;
+}

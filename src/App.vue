@@ -1,10 +1,23 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import { defaultGameState, type GameState } from './code/types'
+import ViewMainMenu from './components/ViewMainMenu.vue'
+import ViewTicTacToe from './components/ViewTicTacToe.vue'
+
+// Default game state.
+const gameState = ref<GameState>({ ...defaultGameState })
 </script>
 
 <template>
-  <p>
-    TODO: actual tic-tac-toe.
-  </p>
+  <h1>TIC TAC TOE</h1>
+
+  <template v-if="gameState.view.activeScreen === 'mainMenu'">
+    <ViewMainMenu v-model="gameState" />
+  </template>
+
+  <template v-else>
+    <ViewTicTacToe v-model="gameState" />
+  </template>
 </template>
 
 <style scoped>
