@@ -12,6 +12,8 @@ const defaultGameView: GameView = {
 
 // //////////////
 // Game settings.
+// //////////////
+
 export enum Difficulty {
     Easy, // AI makes completely random moves.
     Medium, // AI sometimes actually tries to make 3 in row.
@@ -19,41 +21,69 @@ export enum Difficulty {
     Impossible // AI plays perfectly; at best, only tie possible.
 }
 
+export enum WhoFirst {
+  Random,
+  Human,
+  AI
+}
+
 type GameSettings = {
   difficulty: Difficulty;
+  whoFirst: WhoFirst;
 };
 
 const defaultGameSettings: GameSettings = {
-  difficulty: Difficulty.Easy
+  difficulty: Difficulty.Easy,
+  whoFirst: WhoFirst.Random
 };
 
 // ////////////////////////
 // Tic Tac Toe board state.
-enum CellState {
+// ////////////////////////
+
+export enum CellState {
+  Unknown, // indicates bug
   Empty,
-  X,
-  O
+  X, // cross
+  O // nought
 };
+
+export enum PlayerType {
+  Human,
+  AI
+}
 
 type GameBoard = {
   cells: CellState[][];
-  playerScore: number;
-  playerWinInRow: number;
+  first: PlayerType;
+
+  ties: number;
+  tiesInRow: number;
+  humanScore: number;
+  humanWinInRow: number;
   aiScore: number;
+  aiWinInRow: number;
 };
 
 export const defaultGameBoard: GameBoard = {
   cells: [[CellState.Empty, CellState.Empty, CellState.Empty],
           [CellState.Empty, CellState.Empty, CellState.Empty],
           [CellState.Empty, CellState.Empty, CellState.Empty]],
-  playerScore: 0,
-  playerWinInRow: 0,
-  aiScore: 0
+  first: PlayerType.Human,
+
+  ties: 0,
+  tiesInRow: 0,
+  humanScore: 0,
+  humanWinInRow: 0,
+  aiScore: 0,
+  aiWinInRow: 0
 };
 
 // ///////////////////////
 // Complete state of game.
 // In principle you could serialize it into file on disk, creating full save of game.
+// ///////////////////////
+
 export type GameState = {
   view: GameView;
   settings: GameSettings;

@@ -9,15 +9,23 @@ const gameState = ref<GameState>({ ...defaultGameState })
 </script>
 
 <template>
-  <h1>TIC TAC TOE</h1>
+  <header>
+    <h1>TIC TAC TOE</h1>
+  </header>
 
-  <template v-if="gameState.view.activeScreen === 'mainMenu'">
-    <ViewMainMenu v-model="gameState" />
-  </template>
+  <main>
+    <template v-if="gameState.view.activeScreen === 'mainMenu'">
+      <ViewMainMenu v-model="gameState" />
+    </template>
 
-  <template v-else>
-    <ViewTicTacToe v-model="gameState" />
-  </template>
+    <template v-else>
+      <ViewTicTacToe v-model="gameState" />
+    </template>
+  </main>
+
+  <footer>
+    Paweł Papierkowski
+  </footer>
 </template>
 
 <style scoped>
