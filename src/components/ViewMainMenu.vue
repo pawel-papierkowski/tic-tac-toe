@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { type GameState } from '../code/types.ts';
 import { changeScreen } from '../code/common.ts';
-import { prepareGame } from '../code/ticTacToe.ts';
+import { prepareNewGame } from '../code/ticTacToe.ts';
 import { difficultyDescr, whoFirstDescr } from '../code/data.ts';
 
 const gameState = defineModel<GameState>({ required: true });
 
 function startGame() {
-  prepareGame(gameState);
+  prepareNewGame(gameState);
   changeScreen(gameState, 'game');
 }
 </script>

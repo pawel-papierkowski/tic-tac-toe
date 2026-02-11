@@ -3,11 +3,12 @@
  ********************************/
 
 /* Settings for specific elements. */
+
 body {
   /* Game completely centers its content in browser window. */
   display: flex;
   justify-content: center; /* Horizontal */
-  align-items: center;     /* Vertical */
+  align-items: top;     /* Vertical */
   /* Other stuff. */
   color-scheme: light;
 }
@@ -47,19 +48,6 @@ footer {
   width: 100%;
 }
 
-/* Info panel. */
-.info {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  gap: 2px;
-
-  margin: auto;
-  width: 50%;
-  font-size: 14px;
-  text-align: center;
-}
-
 /* Game board. */
 
 .gameboard {
@@ -67,41 +55,29 @@ footer {
   grid-template-columns: repeat(3, 10px 200px) 10px;
   grid-template-rows: repeat(3, 10px 200px) 10px;
 
-  background-color: #fefefe;
+  background-color: #f8f8f8;
+  border-radius: 10px;
 }
 
 .lineskip {
   grid-column: 1 / -1
 }
 
-.boardlinev {
+.boardline-vt {
+  background-color: #444444;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+.boardline-vm {
   background-color: #444444;
 }
-.boardlineh {
+.boardline-vb {
   background-color: #444444;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+.boardline-h {
+  background-color: #444444;
+  border-radius: 10px;
   grid-column: span 5
-}
-
-/* Score board. It is glued to right side of screen. */
-.scoreboard {
-  position: fixed;
-  top: 0;
-  right: 0;
-  margin: 10px;
-  padding: 10px;
-  overflow-y: auto;  /* Scrollable if content is long */
-  z-index: 100;  /* Ensure it's above other content */
-
-  background-color: #f0f0f0;
-
-  display: grid;
-  grid-template-columns: 3fr, 3fr;
-  gap: 2px;
-}
-
-.scoreboard h2 {
-  grid-column: span 2;
-  color: #484848;
-  text-align: center;
-  text-shadow: 0 0 3px currentColor; /* The glow matches the text */
 }

@@ -1,38 +1,44 @@
 <script setup lang="ts">
-import { type GameState } from '../code/types.ts'
+import { EnGameStatus, type GameState } from '../code/types.ts'
 import { changeScreen } from '../code/common.ts'
-import { difficultyDescr, playerTypeDescr } from '../code/data.ts';
+import { prepareNextRound } from '../code/ticTacToe.ts';
+import SidePanel from './SidePanel.vue'
+import GameStatus from './GameStatus.vue'
 import TicTacToeCell from './TicTacToeCell.vue'
 
 const gameState = defineModel<GameState>({ required: true })
 
+/**
+ * Return back to main menu.
+ */
 function toMainMenu() {
   changeScreen(gameState, 'mainMenu');
+}
+
+/**
+ * Check if can start next round.
+ * @returns True if can start next round, otherwise false.
+ */
+function canStartNextRound() : boolean {
+  if (gameState.value.board.status == EnGameStatus.PlayerWon || gameState.value.board.status == EnGameStatus.Tie)
+   return true;
+  return false;
+}
+
+/**
+ * Start next round.
+ */
+function nextRound() {
+  prepareNextRound(gameState);
 }
 </script>
 
 <template>
-  <div class="info">
-    <div>Difficulty:</div>
-    <div>{{ difficultyDescr[gameState.settings.difficulty] }}</div>
-    <div>First:</div>
-    <div>{{ playerTypeDescr[gameState.board.first] }}</div>
-  </div>
+  <SidePanel :gameState="gameState" />
+  <GameStatus :gameState="gameState" />
 
-  <div class="scoreboard">
-    <h2>SCOREBOARD</h2>
-    <div>Ties:</div>
-    <div>{{ gameState.board.ties }}</div>
-    <div>Ties in row:</div>
-    <div>{{ gameState.board.tiesInRow }}</div>
-    <div>Human wins:</div>
-    <div>{{ gameState.board.humanScore }}</div>
-    <div>Human wins in row:</div>
-    <div>{{ gameState.board.humanWinInRow }}</div>
-    <div>AI wins:</div>
-    <div>{{ gameState.board.aiScore }}</div>
-    <div>AI wins in row:</div>
-    <div>{{ gameState.board.aiWinInRow }}</div>
+  <div class="menu" v-if="canStartNextRound()">
+    <button @click="nextRound">Next Round</button>
   </div>
 
   <div class="gameboard">
@@ -40,35 +46,35 @@ function toMainMenu() {
     <!-- 1st row -->
     <div></div>
     <TicTacToeCell v-model="gameState" :col="0" :row="0" />
-    <div class="boardlinev"></div>
+    <div class="boardline-vt"></div>
     <TicTacToeCell v-model="gameState" :col="1" :row="0" />
-    <div class="boardlinev"></div>
+    <div class="boardline-vt"></div>
     <TicTacToeCell v-model="gameState" :col="2" :row="0" />
     <div></div>
 
     <div></div>
-    <div class="boardlineh"></div>
+    <div class="boardline-h"></div>
     <div></div>
 
     <!-- 2nd row -->
     <div></div>
     <TicTacToeCell v-model="gameState" :col="0" :row="1" />
-    <div class="boardlinev"></div>
+    <div class="boardline-vm"></div>
     <TicTacToeCell v-model="gameState" :col="1" :row="1" />
-    <div class="boardlinev"></div>
+    <div class="boardline-vm"></div>
     <TicTacToeCell v-model="gameState" :col="2" :row="1" />
     <div></div>
 
     <div></div>
-    <div class="boardlineh"></div>
+    <div class="boardline-h"></div>
     <div></div>
 
     <!-- 3rd row -->
     <div></div>
     <TicTacToeCell v-model="gameState" :col="0" :row="2" />
-    <div class="boardlinev"></div>
+    <div class="boardline-vb"></div>
     <TicTacToeCell v-model="gameState" :col="1" :row="2" />
-    <div class="boardlinev"></div>
+    <div class="boardline-vb"></div>
     <TicTacToeCell v-model="gameState" :col="2" :row="2" />
     <div></div>
 

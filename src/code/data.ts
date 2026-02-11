@@ -1,19 +1,19 @@
-import { Difficulty, WhoFirst, PlayerType } from "./types";
+import { EnDifficulty, EnWhoFirst, EnPlayerType } from "./types";
 
-export const difficultyDescr: Record<Difficulty, string> = {
-  [Difficulty.Easy]: 'Easy - Random moves.',
-  [Difficulty.Medium]: 'Medium - Sometimes strategic.',
-  [Difficulty.Hard]: 'Hard - Occasional mistakes.',
-  [Difficulty.Impossible]: 'Impossible - Perfect play.'
+export const difficultyDescr: Record<EnDifficulty, string> = {
+  [EnDifficulty.Easy]: 'Easy - Random moves',
+  [EnDifficulty.Medium]: 'Medium - Sometimes strategic',
+  [EnDifficulty.Hard]: 'Hard - Occasional mistakes',
+  [EnDifficulty.Impossible]: 'Impossible - Perfect play'
 };
 
-export const whoFirstDescr: Record<WhoFirst, string> = {
-  [WhoFirst.Random]: 'Random.',
-  [WhoFirst.Human]: 'Human.',
-  [WhoFirst.AI]: 'AI.',
+export const whoFirstDescr: Record<EnWhoFirst, string> = {
+  [EnWhoFirst.Random]: 'Random',
+  [EnWhoFirst.Human]: 'Human',
+  [EnWhoFirst.AI]: 'AI',
 };
 
-export const playerTypeDescr: Record<PlayerType, string> = {
-  [PlayerType.Human]: 'Human',
-  [PlayerType.AI]: 'AI',
+export const playerTypeDescr: Record<EnPlayerType, string> = {
+  [EnPlayerType.Human]: 'Human',
+  [EnPlayerType.AI]: 'AI',
 };

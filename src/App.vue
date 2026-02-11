@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { defaultGameState, type GameState } from './code/types'
+import { createGameState, type GameState } from './code/types'
 import ViewMainMenu from './components/ViewMainMenu.vue'
 import ViewTicTacToe from './components/ViewTicTacToe.vue'
 
 // Default game state.
-const gameState = ref<GameState>({ ...defaultGameState })
+const gameState = ref<GameState>(createGameState());
 </script>
 
 <template>
