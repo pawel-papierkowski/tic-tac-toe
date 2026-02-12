@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { EnPlayerType, EnCellState, EnGameStatus, type GameState, type LegalMove } from '../code/types.ts';
-import { executeMove } from '../code/ticTacToe.ts'
+import { executeMove, moveAI } from '../code/ticTacToe.ts'
 
 const gameState = defineModel<GameState>({ required: true })
 const props = defineProps<{
@@ -23,7 +23,7 @@ const imageLink = computed<string>(() => {
 /**
  * Human player clicked on cell. Verify if player is allowed to do it and if so, make a move.
  */
-function clickOnCell() {
+async function clickOnCell() {
   if (gameState.value.board.status !== EnGameStatus.InProgress) return; // only if game is in progress
   if (gameState.value.board.currentPlayer !== EnPlayerType.Human) return; // only if it is human's turn
   if (cellValue.value !== EnCellState.Empty) return; // empty cell only
@@ -34,7 +34,14 @@ function clickOnCell() {
     y: props.row,
     score: 0
   };
-  executeMove(gameState, move);
+  executeMove(gameState, move); // here we change currentPlayer (unless win/tie happened)
+
+  // TypeScript goes stupid here, we need to tell it off.
+  // @ts-expect-error - yes, currentPlayer CAN be either AI or Human here.
+  if (gameState.value.board.currentPlayer === EnPlayerType.AI) {
+    await new Promise(resolve => setTimeout(resolve, 700)); // Delay for visual effect...
+    moveAI(gameState); // THEN execute AI move.
+  }
 }
 </script>
 

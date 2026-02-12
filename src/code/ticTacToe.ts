@@ -1,5 +1,5 @@
 import type { Ref } from 'vue';
-import { EnCellState, EnDifficulty, EnGameStatus, EnPlayerType, EnWhoFirst, EnMoveResult, createGameStatistics, createGameBoard } from './types';
+import { EnCellState, EnDifficulty, EnGameStatus, EnPlayerType, EnWhoFirst, createGameStatistics, createGameBoard } from './types';
 import type { GameState, LegalMove } from './types';
 
 /**
@@ -27,6 +27,138 @@ export function prepareNextRound(gameState : Ref<GameState>) {
   gameState.value.statistics.round++;
 }
 
+//
+
+/**
+ * Check state of board and see if there are any three cells with same X or O state in row, column or across.
+ * @param gameState Reference to game state.
+ */
+function checkWinState(gameState : Ref<GameState>) : boolean {
+  // Game is simple enough that we can just check all possibilities manually.
+  gameState.value.board.strike.present = true; // how optimistic
+
+  // first all cases from upper left corner (horizontal line, vertical line and cross)
+  if (checkUpLeftCorner(gameState)) return true;
+  // now middle horizontal and vertical
+  if (checkMiddleLines(gameState)) return true;
+  // now horizontal and vertical at end
+  if (checkEndLines(gameState)) return true;
+  // last is upper right corner cross
+  if (checkUpRightCorner(gameState)) return true;
+
+  gameState.value.board.strike.present = false;
+  return false; // no win state exist
+}
+
+function checkUpLeftCorner(gameState : Ref<GameState>) : boolean {
+  const cellState = gameState.value.board.cells[0]![0]; // upper left corner
+  if (cellState !== EnCellState.O && cellState != EnCellState.X) return false;
+  gameState.value.board.strike.x1 = 0;
+  gameState.value.board.strike.y1 = 0;
+  if (gameState.value.board.cells[1]![0] === cellState && gameState.value.board.cells[2]![0] === cellState) { // horizontal line
+    gameState.value.board.strike.x2 = 2; // XXX
+    gameState.value.board.strike.y2 = 0; // ???
+    return true;                         // ???
+  }
+  if (gameState.value.board.cells[0]![1] === cellState && gameState.value.board.cells[0]![2] === cellState) { // vertical line
+    gameState.value.board.strike.x2 = 0; // X??
+    gameState.value.board.strike.y2 = 2; // X??
+    return true;                         // X??
+  }
+  if (gameState.value.board.cells[1]![1] === cellState && gameState.value.board.cells[2]![2] === cellState) { // cross
+    gameState.value.board.strike.x2 = 2; // X??
+    gameState.value.board.strike.y2 = 2; // ?X?
+    return true;                         // ??X
+  }
+  return false;
+}
+
+function checkMiddleLines(gameState : Ref<GameState>) : boolean {
+  let cellState = gameState.value.board.cells[1]![0];
+  if (cellState !== EnCellState.O && cellState != EnCellState.X) return false;
+  gameState.value.board.strike.x1 = 1;
+  gameState.value.board.strike.y1 = 0;
+  if (gameState.value.board.cells[1]![1] === cellState && gameState.value.board.cells[1]![2] === cellState) { // horizontal middle line
+    gameState.value.board.strike.x2 = 1; // ???
+    gameState.value.board.strike.y2 = 2; // XXX
+    return true;                         // ???
+  }
+  cellState = gameState.value.board.cells[0]![1];
+  if (cellState !== EnCellState.O && cellState != EnCellState.X) return false;
+  gameState.value.board.strike.x1 = 0;
+  gameState.value.board.strike.y1 = 1;
+  if (gameState.value.board.cells[1]![1] === cellState && gameState.value.board.cells[2]![1] === cellState) { // vertical middle line
+    gameState.value.board.strike.x2 = 2; // ?X?
+    gameState.value.board.strike.y2 = 1; // ?X?
+    return true;                         // ?X?
+  }
+  return false;
+}
+
+function checkEndLines(gameState : Ref<GameState>) : boolean {
+  const cellState = gameState.value.board.cells[2]![2]; // bottom right corner
+  if (cellState !== EnCellState.O && cellState != EnCellState.X) return false;
+  gameState.value.board.strike.x1 = 2;
+  gameState.value.board.strike.y1 = 2;
+  if (gameState.value.board.cells[1]![2] === cellState && gameState.value.board.cells[0]![2] === cellState) { // horizontal line
+    gameState.value.board.strike.x2 = 0; // ???
+    gameState.value.board.strike.y2 = 2; // ???
+    return true;                         // XXX
+  }
+  if (gameState.value.board.cells[2]![1] === cellState && gameState.value.board.cells[2]![0] === cellState) { // vertical line
+    gameState.value.board.strike.x2 = 2; // ??X
+    gameState.value.board.strike.y2 = 0; // ??X
+    return true;                         // ??X
+  }
+  return false;
+}
+
+function checkUpRightCorner(gameState : Ref<GameState>) : boolean {
+  const cellState = gameState.value.board.cells[2]![0]; // upper right corner
+  if (cellState !== EnCellState.O && cellState != EnCellState.X) return false;
+  gameState.value.board.strike.x1 = 2;
+  gameState.value.board.strike.y1 = 0;
+  if (gameState.value.board.cells[1]![1] === cellState && gameState.value.board.cells[0]![2] === cellState) { // cross
+    gameState.value.board.strike.x2 = 0; // ??X
+    gameState.value.board.strike.y2 = 2; // ?X?
+    return true;                         // X??
+  }
+  return false;
+}
+
+//
+
+/**
+ * Set up game state for win.
+ * @param gameState Reference to game state.
+ */
+function reactOnWin(gameState : Ref<GameState>) {
+  gameState.value.board.status = EnGameStatus.PlayerWon; // we know who won from currentPlayer
+  gameState.value.statistics.tiesInRow = 0;
+
+  if (gameState.value.board.currentPlayer === EnPlayerType.Human) {
+    gameState.value.statistics.humanScore++;
+    gameState.value.statistics.humanWinInRow++;
+    gameState.value.statistics.aiWinInRow = 0;
+  } else {
+    gameState.value.statistics.aiScore++;
+    gameState.value.statistics.aiWinInRow++;
+    gameState.value.statistics.humanWinInRow = 0;
+  }
+}
+
+/**
+ * Set up game state for tie.
+ * @param gameState Reference to game state.
+ */
+function reactOnTie(gameState : Ref<GameState>) {
+  gameState.value.board.status = EnGameStatus.Tie;
+  gameState.value.statistics.ties++;
+  gameState.value.statistics.tiesInRow++;
+  gameState.value.statistics.aiWinInRow = 0;
+  gameState.value.statistics.humanWinInRow = 0;
+}
+
 // ////////
 
 /**
@@ -34,22 +166,33 @@ export function prepareNextRound(gameState : Ref<GameState>) {
  * Note this function is used both by AI and human.
  * @param move Legal move to execute.
  */
-export function executeMove(gameState : Ref<GameState>, move : LegalMove) : EnMoveResult {
+export function executeMove(gameState : Ref<GameState>, move : LegalMove) {
   if (gameState.value.board.cells[move.x]![move.y] !== EnCellState.Empty) {
     gameState.value.board.status = EnGameStatus.Stop;
     console.error(`Tried to execute illegal move! X: ${move.x}, Y: ${move.y}`);
-    return EnMoveResult.Error;
+    return;
   }
 
   const newCellState : EnCellState = // first player uses crosses, second player uses naughts
     gameState.value.board.firstPlayer === gameState.value.board.currentPlayer ? EnCellState.X : EnCellState.O;
-
   gameState.value.board.cells[move.x]![move.y] = newCellState;
-  // TODO finish it:
-  // - check if win state was achieved (in this case return EnMoveResult.Win)
-  // - check if tie state was achieved (in this case return EnMoveResult.Tie)
-  // - if neither happened, switch current player
-  return EnMoveResult.Success;
+
+  // Check if win state was achieved.
+  if (checkWinState(gameState)) {
+    reactOnWin(gameState);
+    return;
+  }
+
+  // Check if tie state was achieved.
+  const legalMoves = resolveLegalMoves(gameState, false);
+  if (legalMoves.length === 0) { // no legal moves, we have tie
+    reactOnTie(gameState);
+    return;
+  }
+
+  // If we are here, we know game continues. Switch current player.
+  gameState.value.board.currentPlayer = gameState.value.board.currentPlayer === EnPlayerType.AI ? EnPlayerType.Human : EnPlayerType.AI;
+  return;
 }
 
 //
@@ -60,8 +203,11 @@ export function executeMove(gameState : Ref<GameState>, move : LegalMove) : EnMo
  * @param gameState Reference to game state.
  */
 export function moveAI(gameState : Ref<GameState>) {
-  const legalMoves = resolveLegalMoves(gameState);
-  if (legalMoves.length === 0) return; // no legal moves
+  const legalMoves = resolveLegalMoves(gameState, true);
+  if (legalMoves.length === 0) { // no legal moves, we have tie
+    reactOnTie(gameState);
+    return;
+  }
 
   switch (gameState.value.settings.difficulty) {
     case EnDifficulty.Easy: moveEasy(gameState, legalMoves); break;
@@ -117,10 +263,33 @@ function moveImpossible(gameState : Ref<GameState>, legalMoves : LegalMove[]) {
 /**
  * Tries to find legal moves.
  * @param gameState Reference to game state.
+ * @param calcScore If true, calculate score, otherwise score is always 0
  * @returns Array of legal moves. If array is empty, no move is possible, making it tie.
  */
-function resolveLegalMoves(gameState : Ref<GameState>) : LegalMove[] {
+function resolveLegalMoves(gameState : Ref<GameState>, calcScore : boolean) : LegalMove[] {
   console.log("resolveLegalMoves() called.");
-  // TODO find all legal moves and assign score to each one
-  return []; // no moves found
+  // Find all legal moves and assign score to each one.
+  const legalMoves : LegalMove[] = []; // empty array
+  for (let x=0; x<3; x++) {
+    for (let y=0; y<3; y++) {
+      if (gameState.value.board.cells[x]![y] != EnCellState.Empty) continue;
+      const legalMove : LegalMove = {
+        x: x,
+        y: y,
+        score: calcMoveScore(x, y, calcScore)
+      };
+      legalMoves.push(legalMove);
+    }
+  }
+  return legalMoves;
+}
+
+/**
+ * Calculate score for given move.
+ * @returns Calculated score.
+ */
+function calcMoveScore(x: number, y: number, calcScore : boolean) : number {
+  if (!calcScore) return 0;
+  // TODO actually do it, for now always return 0
+  return 0;
 }

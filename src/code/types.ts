@@ -66,11 +66,31 @@ export enum EnPlayerType {
   AI
 }
 
+ // If present === true, draws strikethrough on screen from x1,y1 to x2,y2. Note units are in cells indexes, not pixels.
+type StrikeData = {
+  present: boolean,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number
+};
+
+export function createStrikeData(): StrikeData {
+  return {
+    present: false,
+    x1: 0,
+    y1: 0,
+    x2: 0,
+    y2: 0
+  };
+}
+
 type GameBoard = {
   status: EnGameStatus;
   cells: EnCellState[][];
   firstPlayer: EnPlayerType;
   currentPlayer: EnPlayerType;
+  strike: StrikeData;
 };
 
 export function createGameBoard(): GameBoard {
@@ -80,7 +100,8 @@ export function createGameBoard(): GameBoard {
             [EnCellState.Empty, EnCellState.Empty, EnCellState.Empty],
             [EnCellState.Empty, EnCellState.Empty, EnCellState.Empty]],
     firstPlayer: EnPlayerType.Human,
-    currentPlayer: EnPlayerType.Human
+    currentPlayer: EnPlayerType.Human,
+    strike: createStrikeData()
   };
 }
 
@@ -130,13 +151,6 @@ export function createGameState(): GameState {
 // /////////////////////////////
 // Types for tic-tac-toe engine.
 // /////////////////////////////
-
-export enum EnMoveResult {
-  Error, // Tried to do illegal move. Most likely bug.
-  Tie, // Failed to move. Indicates tie.
-  Success, // Move was made successfully, but it was not winning move.
-  Win // Move was made successfully, and it was winning move.
-}
 
 export type LegalMove = {
   x: number,
