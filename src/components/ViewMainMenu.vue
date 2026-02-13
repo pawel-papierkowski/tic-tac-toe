@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { type GameState } from '../code/types.ts';
-import { changeScreen } from '../code/common.ts';
-import { prepareNewGame } from '../code/ticTacToe.ts';
-import { difficultyDescr, whoFirstDescr } from '../code/data.ts';
+import { type GameState } from '@/code/types.ts';
+import { changeScreen } from '@/code/common.ts';
+import { prepareNewGame } from '@/code/ticTacToe.ts';
+import { difficultyDescr, whoFirstDescr } from '@/code/data.ts';
 
 const gameState = defineModel<GameState>({ required: true });
 
@@ -17,7 +17,7 @@ function startGame() {
     <label for="difficulty">
       Difficulty:
     </label>
-    <select id="difficulty" v-model.number="gameState.settings.difficulty">
+    <select id="difficulty" data-testid="select-difficulty" v-model.number="gameState.settings.difficulty">
       <option v-for="(desc, value) in difficultyDescr" :key="value" :value="Number(value)">
         {{ desc }}
       </option>
@@ -25,12 +25,12 @@ function startGame() {
     <label for="whoFirst">
       Who starts first:
     </label>
-    <select id="whoFirst" v-model.number="gameState.settings.whoFirst">
+    <select id="whoFirst" data-testid="select-whoFirst" v-model.number="gameState.settings.whoFirst">
       <option v-for="(desc, value) in whoFirstDescr" :key="value" :value="Number(value)">
         {{ desc }}
       </option>
     </select>
-    <button @click="startGame">Start</button>
+    <button data-testid="button-start" @click="startGame">Start Game</button>
   </div>
 </template>
 

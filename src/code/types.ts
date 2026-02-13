@@ -153,7 +153,21 @@ export function createGameState(): GameState {
 // /////////////////////////////
 
 export type LegalMove = {
+  who: EnCellState, // Who is making move: crosses or naughts?
   x: number,
   y: number,
-  score: number // the higher score, the better is move
+  score: number, // The higher score, the better is move.
+  win: boolean, // If true, this move is winning move.
+  preventLoss: boolean, // If true, this move prevents win of opponent.
+}
+
+export function createLegalMove(who : EnCellState, x : number, y : number): LegalMove {
+  return {
+    who: who,
+    x: x,
+    y: y,
+    score: 0,
+    win: false,
+    preventLoss: false
+  };
 }

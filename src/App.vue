@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { createGameState, type GameState } from './code/types'
-import ViewMainMenu from './components/ViewMainMenu.vue'
-import ViewTicTacToe from './components/ViewTicTacToe.vue'
+import { createGameState, type GameState } from '@/code/types.ts'
+import ViewMainMenu from '@/components/ViewMainMenu.vue'
+import ViewTicTacToe from '@/components/ViewTicTacToe.vue'
 
 // Default game state.
 const gameState = ref<GameState>(createGameState());

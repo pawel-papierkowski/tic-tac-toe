@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { EnGameStatus, type GameState } from '../code/types.ts'
-import { changeScreen } from '../code/common.ts'
-import { prepareNextRound } from '../code/ticTacToe.ts';
-import SidePanel from './SidePanel.vue'
-import GameStatus from './GameStatus.vue'
-import TicTacToeCell from './TicTacToeCell.vue'
+import { EnGameStatus, type GameState } from '@/code/types.ts'
+import { changeScreen } from '@/code/common.ts'
+import { prepareNextRound } from '@/code/ticTacToe.ts';
+import SidePanel from '@/components/SidePanel.vue'
+import GameStatus from '@/components/GameStatus.vue'
+import TicTacToeCell from '@/components/TicTacToeCell.vue'
 
 const gameState = defineModel<GameState>({ required: true })
 

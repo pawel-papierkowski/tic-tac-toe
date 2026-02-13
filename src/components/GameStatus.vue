@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { EnGameStatus, EnPlayerType, type GameState } from '../code/types.ts'
-import { playerTypeDescr } from '../code/data.ts';
+import { EnGameStatus, EnPlayerType, type GameState } from '@/code/types.ts'
+import { playerTypeDescr } from '@/code/data.ts';
 
 // It is used only in template, so we need to disable this warning.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
