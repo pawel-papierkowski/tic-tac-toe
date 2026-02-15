@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { EnPlayerType, EnCellState, EnGameStatus, type GameState, createLegalMove } from '@/code/types.ts';
-import { executeMove, moveAi } from '@/code/ticTacToe.ts'
+import type { GameState,  } from '@/code/types.ts';
+import { EnPlayerType, EnCellState, EnGameStatus, createLegalMove } from '@/code/types.ts';
+import { executeMove, moveAi } from '@/code/ai.ts';
+import { fillDebugData } from '@/code/debug.ts';
 
 const gameState = defineModel<GameState>({ required: true })
 const props = defineProps<{
@@ -34,6 +36,7 @@ async function clickOnCell() {
 
   const humanMove = createLegalMove(who, props.col, props.row);
   executeMove(gameState, humanMove); // here we change currentPlayer (unless win/tie happened)
+  fillDebugData(gameState);
 
   // TypeScript goes stupid here, we need to tell it off.
   // @ts-expect-error - yes, currentPlayer CAN be either AI or Human here.
@@ -48,7 +51,14 @@ async function clickOnCell() {
   <div class="cell-filled" v-if="cellValue !== EnCellState.Empty">
     <img :src="imageLink" width="200" height="200" />
   </div>
-  <div class="cell-empty" @click="clickOnCell()" v-else></div>
+  <div class="cell-empty" @click="clickOnCell()" v-else>
+    <div v-if="gameState.settings.debugMode === true">
+      Score: {{ gameState.board.debug[col]![row]?.score }}<br/>
+      Win: {{ gameState.board.debug[col]![row]?.win }}<br/>
+      PreventLoss: {{ gameState.board.debug[col]![row]?.preventLoss }}<br/>
+      LineUp: {{ gameState.board.debug[col]![row]?.lineUp }}<br/>
+    </div>
+  </div>
 </template>
 
 <style scoped>

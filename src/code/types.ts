@@ -34,12 +34,16 @@ export enum EnWhoFirst {
 type GameSettings = {
   difficulty: EnDifficulty;
   whoFirst: EnWhoFirst;
+  debugMode: boolean;
+  debugPlayer: EnPlayerType;
 };
 
 export function createGameSettings(): GameSettings {
   return {
     difficulty: EnDifficulty.Easy,
-    whoFirst: EnWhoFirst.Random
+    whoFirst: EnWhoFirst.Random,
+    debugMode: true, // Settable only in code.
+    debugPlayer: EnPlayerType.AI, // Which player's debug should be shown.
   };
 }
 
@@ -75,7 +79,7 @@ type StrikeData = {
   y2: number
 };
 
-export function createStrikeData(): StrikeData {
+function createStrikeData(): StrikeData {
   return {
     present: false,
     x1: 0,
@@ -85,9 +89,36 @@ export function createStrikeData(): StrikeData {
   };
 }
 
+export type DebugData = {
+  score: number,
+  win: boolean,
+  preventLoss: boolean,
+  lineUp: number,
+};
+
+function createDebugData(): DebugData {
+  return {
+    score: 0,
+    win: false,
+    preventLoss: false,
+    lineUp: 0,
+  };
+}
+
+function createDebugBoard(): DebugData[][] {
+  const debugBoard : DebugData[][] = [[],[],[]]; // initialize
+  for (let i=0; i<3; i++) {
+    for (let j=0; j<3; j++) {
+      debugBoard[i]![j] = createDebugData();
+    }
+  }
+  return debugBoard;
+}
+
 type GameBoard = {
   status: EnGameStatus;
   cells: EnCellState[][];
+  debug: DebugData[][];
   firstPlayer: EnPlayerType;
   currentPlayer: EnPlayerType;
   strike: StrikeData;
@@ -99,6 +130,7 @@ export function createGameBoard(): GameBoard {
     cells: [[EnCellState.Empty, EnCellState.Empty, EnCellState.Empty],
             [EnCellState.Empty, EnCellState.Empty, EnCellState.Empty],
             [EnCellState.Empty, EnCellState.Empty, EnCellState.Empty]],
+    debug: createDebugBoard(),
     firstPlayer: EnPlayerType.Human,
     currentPlayer: EnPlayerType.Human,
     strike: createStrikeData()
@@ -156,9 +188,11 @@ export type LegalMove = {
   who: EnCellState, // Who is making move: crosses or naughts?
   x: number,
   y: number,
-  score: number, // The higher score, the better is move.
+  weight: number, // Importance of move. Used in medium and hard difficulties.
+  score: number, // The higher score, the better is move. Same on any difficulty.
   win: boolean, // If true, this move is winning move.
   preventLoss: boolean, // If true, this move prevents win of opponent.
+  lineUp: number, // Amout of other X/O that are lined up with this move.
 }
 
 export function createLegalMove(who : EnCellState, x : number, y : number): LegalMove {
@@ -166,8 +200,10 @@ export function createLegalMove(who : EnCellState, x : number, y : number): Lega
     who: who,
     x: x,
     y: y,
+    weight: 0,
     score: 0,
     win: false,
-    preventLoss: false
+    preventLoss: false,
+    lineUp: 0,
   };
 }

@@ -1,14 +1,21 @@
 <script setup lang="ts">
-import { type GameState } from '@/code/types.ts';
+import { EnPlayerType, type GameState } from '@/code/types.ts';
 import { changeScreen } from '@/code/common.ts';
 import { prepareNewGame } from '@/code/ticTacToe.ts';
+import { moveAi } from '@/code/ai.ts';
+import { fillDebugData } from '@/code/debug.ts';
 import { difficultyDescr, whoFirstDescr } from '@/code/data.ts';
 
 const gameState = defineModel<GameState>({ required: true });
 
-function startGame() {
+async function startGame() {
   prepareNewGame(gameState);
   changeScreen(gameState, 'game');
+  fillDebugData(gameState);
+  if (gameState.value.board.firstPlayer == EnPlayerType.AI) {
+    await new Promise(resolve => setTimeout(resolve, 700)); // Delay for visual effect...
+    moveAi(gameState); // THEN execute AI move.
+  }
 }
 </script>
 

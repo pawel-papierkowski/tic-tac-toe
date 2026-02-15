@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { EnGameStatus, type GameState } from '@/code/types.ts'
-import { changeScreen } from '@/code/common.ts'
+import { EnGameStatus, EnPlayerType, type GameState } from '@/code/types.ts';
+import { changeScreen } from '@/code/common.ts';
 import { prepareNextRound } from '@/code/ticTacToe.ts';
-import SidePanel from '@/components/SidePanel.vue'
-import GameStatus from '@/components/GameStatus.vue'
-import TicTacToeCell from '@/components/TicTacToeCell.vue'
+import { moveAi } from '@/code/ai.ts';
+import { fillDebugData } from '@/code/debug.ts';
+import SidePanel from '@/components/SidePanel.vue';
+import GameStatus from '@/components/GameStatus.vue';
+import TicTacToeCell from '@/components/TicTacToeCell.vue';
 
 const gameState = defineModel<GameState>({ required: true })
 
@@ -28,8 +30,14 @@ function canStartNextRound() : boolean {
 /**
  * Start next round.
  */
-function nextRound() {
+async function nextRound() {
   prepareNextRound(gameState);
+  if (gameState.value.board.firstPlayer == EnPlayerType.AI) {
+    await new Promise(resolve => setTimeout(resolve, 700)); // Delay for visual effect...
+    moveAi(gameState); // THEN execute AI move.
+  } else {
+    fillDebugData(gameState);
+  }
 }
 </script>
 
