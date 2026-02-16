@@ -4,4 +4,4 @@ Very simple project showing off the very basics of Vue frontend project.
 
 ## TODO
 - fork prediction (last thing needed for perfect AI)
-- line crossing marks when someone wins
+- distinguish medium and hard (different weights)

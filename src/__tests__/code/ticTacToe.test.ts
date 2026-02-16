@@ -185,8 +185,8 @@ describe('Tests of fillLegalMove() function.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 1060, // same as score
-        score: 1060, // winning move has big score bonus
+        weight: 100060, // same as score
+        score: 100060, // winning move has big score bonus
         win: true,
         preventLoss: false,
         lineUp: 2,
@@ -208,8 +208,8 @@ describe('Tests of fillLegalMove() function.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 110, // same as score
-        score: 110, // score higher if it prevents opponent's win
+        weight: 1010, // same as score
+        score: 1010, // score higher if it prevents opponent's win
         win: false,
         preventLoss: true,
         lineUp: 0,
@@ -230,8 +230,8 @@ describe('Tests of fillLegalMove() function.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 1060, // same as score
-        score: 1060,
+        weight: 100060, // same as score
+        score: 100060,
         win: true,
         preventLoss: false,
         lineUp: 2,
@@ -252,8 +252,8 @@ describe('Tests of fillLegalMove() function.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 1060, // same as score
-        score: 1060,
+        weight: 100060, // same as score
+        score: 100060,
         win: true,
         preventLoss: false,
         lineUp: 2,
@@ -274,8 +274,8 @@ describe('Tests of fillLegalMove() function.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 1100, // same as score
-        score: 1100,
+        weight: 100100, // same as score
+        score: 100100,
         win: true,
         preventLoss: false,
         lineUp: 2,

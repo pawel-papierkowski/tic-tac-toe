@@ -4,8 +4,8 @@ import { EnCellState } from './types.ts';
 import { resolveLegalMoves } from './legalMoves.ts';
 
 /**
- * Fills all debug data that are for empty cells. Point of view is always human player.
- * Should be called before and after move of player.
+ * Fills all debug data that are for empty cells.
+ * Point of view depends on gameState.value.settings.debugPlayer.
  * @param gameState Reference to game state.
  */
 export function fillDebugData(gameState : Ref<GameState>) {

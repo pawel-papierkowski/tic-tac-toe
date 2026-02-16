@@ -2,28 +2,18 @@
  * Styles specific to this app. *
  ********************************/
 
-/* Settings for specific elements. */
+/* Settings for globally used elements. */
 
 body {
   /* Game completely centers its content in browser window. */
   display: flex;
   justify-content: center; /* Horizontal */
-  align-items: top;     /* Vertical */
+  align-items: top;        /* Vertical */
   /* Other stuff. */
   color-scheme: light;
 }
 
-h1 {
-  color: #484848;
-  font-size: 54px;
-  text-align: center;
-  text-shadow: 0 0 5px currentColor; /* The glow matches the text */
-}
-
-footer {
-  font-size: 10px;
-  text-align: center;
-}
+/*** Common elements used on multiple pages. ***/
 
 /* Menu. */
 
@@ -46,38 +36,4 @@ footer {
 .menu button {
   grid-column: span 2;
   width: 100%;
-}
-
-/* Game board. */
-
-.gameboard {
-  display: grid;
-  grid-template-columns: repeat(3, 10px 200px) 10px;
-  grid-template-rows: repeat(3, 10px 200px) 10px;
-
-  background-color: #f8f8f8;
-  border-radius: 10px;
-}
-
-.lineskip {
-  grid-column: 1 / -1
-}
-
-.boardline-vt {
-  background-color: #444444;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-}
-.boardline-vm {
-  background-color: #444444;
-}
-.boardline-vb {
-  background-color: #444444;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-}
-.boardline-h {
-  background-color: #444444;
-  border-radius: 10px;
-  grid-column: span 5
 }

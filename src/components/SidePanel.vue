@@ -39,6 +39,16 @@ const props = defineProps<{gameState: GameState}>(); // read-only
 
 <style scoped>
 
+/* Common. */
+
+h2 {
+  grid-column: span 2;
+  font-size: 21px;
+  color: #484848;
+  text-align: center;
+  text-shadow: 0 0 3px currentColor;
+}
+
 /* Side panels. If window is wide enough, it is on side of screen. */
 
 .sidepanels {
@@ -53,18 +63,11 @@ const props = defineProps<{gameState: GameState}>(); // read-only
   max-width: 500px;
 }
 
-@media (max-width: 1150px) {
-  .sidepanels {
-    position: static;
-    margin: auto;
-  }
-}
-
 /* Info panel. */
 
 .info {
   display: grid;
-  grid-template-columns: 1fr, 1fr;
+  grid-template-columns: 1fr 2fr;
   gap: 2px;
 
   margin: 10px;
@@ -72,24 +75,17 @@ const props = defineProps<{gameState: GameState}>(); // read-only
   border-radius: 10px;
 
   background-color: #f0f0f0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 
   font-size: 14px;
   text-align: center;
-}
-
-.info h2 {
-  grid-column: span 2;
-  color: #484848;
-  text-align: center;
-  text-shadow: 0 0 3px currentColor;
 }
 
 /* Score board. */
 
 .scoreboard {
   display: grid;
-  grid-template-columns: 1fr, 1fr;
+  grid-template-columns: 2fr 1fr;
   gap: 2px;
 
   margin: 10px;
@@ -97,17 +93,40 @@ const props = defineProps<{gameState: GameState}>(); // read-only
   border-radius: 10px;
 
   background-color: #f0f0f0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 
   font-size: 14px;
   text-align: left;
 }
 
-.scoreboard h2 {
-  grid-column: span 2;
-  color: #484848;
-  text-align: center;
-  text-shadow: 0 0 3px currentColor;
+/* Non-desktops. */
+
+@media (max-width: 1200px) {
+  .sidepanels {
+    position: static;
+    margin: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  h2 {
+    font-size: 17px;
+  text-shadow: 0 0 2px currentColor;
+  }
+
+  .info {
+    margin: 7px 10px;
+    padding: 2px 10px;
+    font-size: 12px;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+  }
+
+  .scoreboard {
+    margin: 7px 10px;
+    padding: 2px 10px;
+    font-size: 12px;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+  }
 }
 
 </style>

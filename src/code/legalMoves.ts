@@ -60,12 +60,26 @@ function calcWin(gameState : Ref<GameState>, who: EnCellState, x: number, y: num
   // check horizontal line
   const otherX1 = x === 1 ? 0 : 1;
   const otherX2 = x === 2 ? 0 : 2;
-  if (gameState.value.board.cells[otherX1]![y] === who && gameState.value.board.cells[otherX2]![y] === who) return true;
+  if (gameState.value.board.cells[otherX1]![y] === who && gameState.value.board.cells[otherX2]![y] === who) {
+    gameState.value.board.strike.present = true;
+    gameState.value.board.strike.start.x = 0;
+    gameState.value.board.strike.start.y = y;
+    gameState.value.board.strike.end.x = 2;
+    gameState.value.board.strike.end.y = y;
+    return true;
+  }
 
   // check vertical line
   const otherY1 = y === 1 ? 0 : 1;
   const otherY2 = y === 2 ? 0 : 2;
-  if (gameState.value.board.cells[x]![otherY1] === who && gameState.value.board.cells[x]![otherY2] === who) return true;
+  if (gameState.value.board.cells[x]![otherY1] === who && gameState.value.board.cells[x]![otherY2] === who) {
+    gameState.value.board.strike.present = true;
+    gameState.value.board.strike.start.x = x;
+    gameState.value.board.strike.start.y = 0;
+    gameState.value.board.strike.end.x = x;
+    gameState.value.board.strike.end.y = 2;
+    return true;
+  }
 
   // check cross /: coords 0,2 and 1,1 and 2,0
   if ((x === 0 && y === 2) || (x === 1 && y === 1) || (x === 2 && y === 0)) {
@@ -73,14 +87,28 @@ function calcWin(gameState : Ref<GameState>, who: EnCellState, x: number, y: num
     const crossY1 = y===2 ? 1 : 2;
     const crossX2 = x===2 ? 1 : 2;
     const crossY2 = y===0 ? 1 : 0;
-    if (gameState.value.board.cells[crossX1]![crossY1] === who && gameState.value.board.cells[crossX2]![crossY2] === who) return true;
+    if (gameState.value.board.cells[crossX1]![crossY1] === who && gameState.value.board.cells[crossX2]![crossY2] === who) {
+    gameState.value.board.strike.present = true;
+    gameState.value.board.strike.start.x = 0;
+    gameState.value.board.strike.start.y = 2;
+    gameState.value.board.strike.end.x = 2;
+    gameState.value.board.strike.end.y = 0;
+      return true;
+    }
   }
 
   // check cross \: coords 0,0 and 1,1 and 2,2
   if (x === y) {
     const cross1 = x === 1 ? 0 : 1;
     const cross2 = x === 2 ? 0 : 2;
-    if (gameState.value.board.cells[cross1]![cross1] === who && gameState.value.board.cells[cross2]![cross2] === who) return true;
+    if (gameState.value.board.cells[cross1]![cross1] === who && gameState.value.board.cells[cross2]![cross2] === who) {
+    gameState.value.board.strike.present = true;
+    gameState.value.board.strike.start.x = 0;
+    gameState.value.board.strike.start.y = 0;
+    gameState.value.board.strike.end.x = 2;
+    gameState.value.board.strike.end.y = 2;
+      return true;
+    }
   }
 
   return false;

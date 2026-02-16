@@ -1,5 +1,7 @@
 // GAME DATA
 
+import type { Position } from "@vueuse/core";
+
 // //////////
 // Game view.
 // //////////
@@ -42,7 +44,7 @@ export function createGameSettings(): GameSettings {
   return {
     difficulty: EnDifficulty.Easy,
     whoFirst: EnWhoFirst.Random,
-    debugMode: true, // Settable only in code.
+    debugMode: false, // Settable only in code.
     debugPlayer: EnPlayerType.AI, // Which player's debug should be shown.
   };
 }
@@ -70,22 +72,24 @@ export enum EnPlayerType {
   AI
 }
 
- // If present === true, draws strikethrough on screen from x1,y1 to x2,y2. Note units are in cells indexes, not pixels.
+
+
+// If present === true, draws strikethrough on screen from x1,y1 to x2,y2. Note units are in cells indexes, not pixels.
 type StrikeData = {
   present: boolean,
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number
+  start: Position,
+  end: Position,
+  diffStart: Position,
+  diffEnd: Position,
 };
 
 function createStrikeData(): StrikeData {
   return {
-    present: false,
-    x1: 0,
-    y1: 0,
-    x2: 0,
-    y2: 0
+    present:   false,
+    start:     {x:0, y:0},
+    end:       {x:0, y:0},
+    diffStart: {x:fuzzyCoord(10), y:fuzzyCoord(10)},
+    diffEnd:   {x:fuzzyCoord(10), y:fuzzyCoord(10)},
   };
 }
 
@@ -206,4 +210,17 @@ export function createLegalMove(who : EnCellState, x : number, y : number): Lega
     preventLoss: false,
     lineUp: 0,
   };
+}
+
+/////////
+// Other.
+/////////
+
+/**
+ * Get number in -range to +range range.
+ * @param range Range.
+ * @returns Number.
+ */
+function fuzzyCoord(range : number) : number {
+  return Math.random() * range * 2 - range;
 }

@@ -49,7 +49,6 @@ function moveAiDifficulty(gameState : Ref<GameState>, legalMoves : LegalMove[]) 
  * @returns Picked move.
  */
 function moveEasy(legalMoves : LegalMove[]) : LegalMove {
-  console.log("moveEasy() called.");
   // Pick random legal move.
   const index = Math.floor(Math.random() * legalMoves.length);
   return legalMoves[index]!;
@@ -61,7 +60,6 @@ function moveEasy(legalMoves : LegalMove[]) : LegalMove {
  * @returns Picked move.
  */
 function moveMedium(legalMoves : LegalMove[]) : LegalMove {
-  console.log("moveMedium() called.");
   // Pick move randomly, but weighted. Note scoring is different than on hard/impossible.
   const index = pickWeighted(legalMoves);
   return legalMoves[index]!;
@@ -73,7 +71,6 @@ function moveMedium(legalMoves : LegalMove[]) : LegalMove {
  * @returns Picked move.
  */
 function moveHard(legalMoves : LegalMove[]) : LegalMove {
-  console.log("moveHard() called.");
   // Pick move randomly, but weighted. On hard scoring is different than on medium.
   // Among other things, score of winning move is very large and score of move that prevents opponent win is large.
   const index = pickWeighted(legalMoves);
@@ -86,7 +83,6 @@ function moveHard(legalMoves : LegalMove[]) : LegalMove {
  * @returns Picked move.
  */
 function moveImpossible(legalMoves : LegalMove[]) : LegalMove {
-  console.log("moveImpossible() called.");
   // Always pick highest scored move.
   return pickHighestScore(legalMoves);
 }
@@ -224,22 +220,22 @@ function checkWinState(gameState : Ref<GameState>) : boolean {
 function checkUpLeftCorner(gameState : Ref<GameState>) : boolean {
   const cellState = gameState.value.board.cells[0]![0]; // upper left corner
   if (cellState !== EnCellState.O && cellState != EnCellState.X) return false;
-  gameState.value.board.strike.x1 = 0;
-  gameState.value.board.strike.y1 = 0;
+  gameState.value.board.strike.start.x = 0;
+  gameState.value.board.strike.start.y = 0;
   if (gameState.value.board.cells[1]![0] === cellState && gameState.value.board.cells[2]![0] === cellState) { // horizontal line
-    gameState.value.board.strike.x2 = 2; // XXX
-    gameState.value.board.strike.y2 = 0; // ???
-    return true;                         // ???
+    gameState.value.board.strike.end.x = 2; // XXX
+    gameState.value.board.strike.end.y = 0; // ???
+    return true;                            // ???
   }
   if (gameState.value.board.cells[0]![1] === cellState && gameState.value.board.cells[0]![2] === cellState) { // vertical line
-    gameState.value.board.strike.x2 = 0; // X??
-    gameState.value.board.strike.y2 = 2; // X??
-    return true;                         // X??
+    gameState.value.board.strike.end.x = 0; // X??
+    gameState.value.board.strike.end.y = 2; // X??
+    return true;                            // X??
   }
   if (gameState.value.board.cells[1]![1] === cellState && gameState.value.board.cells[2]![2] === cellState) { // cross
-    gameState.value.board.strike.x2 = 2; // X??
-    gameState.value.board.strike.y2 = 2; // ?X?
-    return true;                         // ??X
+    gameState.value.board.strike.end.x = 2; // X??
+    gameState.value.board.strike.end.y = 2; // ?X?
+    return true;                            // ??X
   }
   return false;
 }
@@ -247,21 +243,21 @@ function checkUpLeftCorner(gameState : Ref<GameState>) : boolean {
 function checkMiddleLines(gameState : Ref<GameState>) : boolean {
   let cellState = gameState.value.board.cells[1]![0];
   if (cellState !== EnCellState.O && cellState != EnCellState.X) return false;
-  gameState.value.board.strike.x1 = 1;
-  gameState.value.board.strike.y1 = 0;
+  gameState.value.board.strike.start.x = 1;
+  gameState.value.board.strike.start.y = 0;
   if (gameState.value.board.cells[1]![1] === cellState && gameState.value.board.cells[1]![2] === cellState) { // horizontal middle line
-    gameState.value.board.strike.x2 = 1; // ???
-    gameState.value.board.strike.y2 = 2; // XXX
-    return true;                         // ???
+    gameState.value.board.strike.end.x = 1; // ???
+    gameState.value.board.strike.end.y = 2; // XXX
+    return true;                            // ???
   }
   cellState = gameState.value.board.cells[0]![1];
   if (cellState !== EnCellState.O && cellState != EnCellState.X) return false;
-  gameState.value.board.strike.x1 = 0;
-  gameState.value.board.strike.y1 = 1;
+  gameState.value.board.strike.start.x = 0;
+  gameState.value.board.strike.start.y = 1;
   if (gameState.value.board.cells[1]![1] === cellState && gameState.value.board.cells[2]![1] === cellState) { // vertical middle line
-    gameState.value.board.strike.x2 = 2; // ?X?
-    gameState.value.board.strike.y2 = 1; // ?X?
-    return true;                         // ?X?
+    gameState.value.board.strike.end.x = 2; // ?X?
+    gameState.value.board.strike.end.y = 1; // ?X?
+    return true;                            // ?X?
   }
   return false;
 }
@@ -269,16 +265,16 @@ function checkMiddleLines(gameState : Ref<GameState>) : boolean {
 function checkEndLines(gameState : Ref<GameState>) : boolean {
   const cellState = gameState.value.board.cells[2]![2]; // bottom right corner
   if (cellState !== EnCellState.O && cellState != EnCellState.X) return false;
-  gameState.value.board.strike.x1 = 2;
-  gameState.value.board.strike.y1 = 2;
+  gameState.value.board.strike.start.x = 2;
+  gameState.value.board.strike.start.y = 2;
   if (gameState.value.board.cells[1]![2] === cellState && gameState.value.board.cells[0]![2] === cellState) { // horizontal line
-    gameState.value.board.strike.x2 = 0; // ???
-    gameState.value.board.strike.y2 = 2; // ???
-    return true;                         // XXX
+    gameState.value.board.strike.end.x = 0; // ???
+    gameState.value.board.strike.end.y = 2; // ???
+    return true;                            // XXX
   }
   if (gameState.value.board.cells[2]![1] === cellState && gameState.value.board.cells[2]![0] === cellState) { // vertical line
-    gameState.value.board.strike.x2 = 2; // ??X
-    gameState.value.board.strike.y2 = 0; // ??X
+    gameState.value.board.strike.end.x = 2; // ??X
+    gameState.value.board.strike.end.y = 0; // ??X
     return true;                         // ??X
   }
   return false;
@@ -287,12 +283,12 @@ function checkEndLines(gameState : Ref<GameState>) : boolean {
 function checkUpRightCorner(gameState : Ref<GameState>) : boolean {
   const cellState = gameState.value.board.cells[2]![0]; // upper right corner
   if (cellState !== EnCellState.O && cellState != EnCellState.X) return false;
-  gameState.value.board.strike.x1 = 2;
-  gameState.value.board.strike.y1 = 0;
+  gameState.value.board.strike.start.x = 2;
+  gameState.value.board.strike.start.y = 0;
   if (gameState.value.board.cells[1]![1] === cellState && gameState.value.board.cells[0]![2] === cellState) { // cross
-    gameState.value.board.strike.x2 = 0; // ??X
-    gameState.value.board.strike.y2 = 2; // ?X?
-    return true;                         // X??
+    gameState.value.board.strike.end.x = 0; // ??X
+    gameState.value.board.strike.end.y = 2; // ?X?
+    return true;                            // X??
   }
   return false;
 }
