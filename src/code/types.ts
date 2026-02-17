@@ -28,9 +28,10 @@ export enum EnDifficulty {
 }
 
 export enum EnWhoFirst {
-  Random,
+  Random, // AI or Human
   Human,
-  AI
+  AI,
+  HumanVsHuman, // two human players mode
 }
 
 type GameSettings = {
@@ -44,7 +45,7 @@ export function createGameSettings(): GameSettings {
   return {
     difficulty: EnDifficulty.Easy,
     whoFirst: EnWhoFirst.Random,
-    debugMode: false, // Settable only in code.
+    debugMode: true, // Settable only in code.
     debugPlayer: EnPlayerType.AI, // Which player's debug should be shown.
   };
 }
@@ -69,13 +70,13 @@ export enum EnCellState {
 
 export enum EnPlayerType {
   Human,
-  AI
+  AI,
+  Human1, // for EnWhoFirst.HumanVsHuman
+  Human2,
 }
 
-
-
 // If present === true, draws strikethrough on screen from x1,y1 to x2,y2. Note units are in cells indexes, not pixels.
-type StrikeData = {
+export type StrikeData = {
   present: boolean,
   start: Position,
   end: Position,
@@ -95,6 +96,7 @@ function createStrikeData(): StrikeData {
 
 export type DebugData = {
   score: number,
+  weight: number,
   win: boolean,
   preventLoss: boolean,
   lineUp: number,
@@ -103,6 +105,7 @@ export type DebugData = {
 function createDebugData(): DebugData {
   return {
     score: 0,
+    weight: 0,
     win: false,
     preventLoss: false,
     lineUp: 0,
@@ -149,6 +152,10 @@ type GameStatistics = {
   humanWinInRow: number;
   aiScore: number;
   aiWinInRow: number;
+  human1Score: number;
+  human1WinInRow: number;
+  human2Score: number;
+  human2WinInRow: number;
 }
 
 export function createGameStatistics(): GameStatistics {
@@ -159,7 +166,11 @@ export function createGameStatistics(): GameStatistics {
     humanScore: 0,
     humanWinInRow: 0,
     aiScore: 0,
-    aiWinInRow: 0
+    aiWinInRow: 0,
+    human1Score: 0,
+    human1WinInRow: 0,
+    human2Score: 0,
+    human2WinInRow: 0,
   };
 }
 

@@ -11,6 +11,8 @@ const props = defineProps<{gameState: GameState}>(); // read-only
   <div class="status">
     <div v-if="gameState.board.status == EnGameStatus.InProgress">
       <div v-if="gameState.board.currentPlayer === EnPlayerType.Human">Your turn!</div>
+      <div v-else-if="gameState.board.currentPlayer === EnPlayerType.Human1">Human 1's turn.</div>
+      <div v-else-if="gameState.board.currentPlayer === EnPlayerType.Human2">Human 2's turn.</div>
       <div v-else>AI is thinking...
         <!-- CSS cannot access .svg files in <img>, so we use inline SVG code. Bah. -->
         <svg class="spinner" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 155 155" fill="none">

@@ -1,24 +1,24 @@
 <script setup lang="ts">
 import { computed, nextTick } from 'vue';
 import type { GameState,  } from '@/code/types.ts';
-import { EnPlayerType, EnCellState, EnGameStatus, createLegalMove } from '@/code/types.ts';
+import { EnPlayerType, EnCellState, EnGameStatus, createLegalMove, EnWhoFirst } from '@/code/types.ts';
 import { executeMove, moveAi } from '@/code/ai.ts';
 import { fillDebugData } from '@/code/debug.ts';
 
 const gameState = defineModel<GameState>({ required: true })
 const props = defineProps<{
-  col: number;
-  row: number;
+  x: number;
+  y: number;
 }>();
 
 const cellId = computed<string>(() => {
-  return `${props.col}x${props.row}`;
+  return `${props.x}x${props.y}`;
 });
 
 const cellValue = computed<EnCellState>(() => {
   const fallback = EnCellState.Unknown;
-  const rowData = gameState.value.board.cells[props.col];
-  return rowData ? rowData[props.row] ?? fallback : fallback;
+  const rowData = gameState.value.board.cells[props.x];
+  return rowData ? rowData[props.y] ?? fallback : fallback;
 });
 
 const imageLink = computed<string>(() => {
@@ -30,21 +30,20 @@ const imageLink = computed<string>(() => {
  */
 async function clickOnCell() {
   if (gameState.value.board.status !== EnGameStatus.InProgress) return; // only if game is in progress
-  if (gameState.value.board.currentPlayer !== EnPlayerType.Human) return; // only if it is human's turn
+  if (gameState.value.settings.whoFirst !== EnWhoFirst.HumanVsHuman &&
+      gameState.value.board.currentPlayer !== EnPlayerType.Human) return; // only if it is human's turn
   if (cellValue.value !== EnCellState.Empty) return; // empty cell only
-  console.log(`Clicked cell. Col: ${props.col}. Row: ${props.row}.`);
+  //console.log(`Clicked cell. X = ${props.x}, Y = ${props.y}.`);
 
-  const who : EnCellState = // first player uses crosses, second player uses naughts
+  const who : EnCellState = // first player always uses crosses, second player uses naughts
     gameState.value.board.firstPlayer === gameState.value.board.currentPlayer ? EnCellState.X : EnCellState.O;
 
-  const humanMove = createLegalMove(who, props.col, props.row);
+  const humanMove = createLegalMove(who, props.x, props.y);
   executeMove(gameState, humanMove); // here we change currentPlayer (unless win/tie happened)
   fillDebugData(gameState);
 
   await nextTick(); // Wait for Vue to update the DOM.
 
-  // TypeScript goes stupid here, we need to tell it off.
-  // @ts-expect-error - yes, currentPlayer CAN be either AI or Human here.
   if (gameState.value.board.currentPlayer === EnPlayerType.AI) {
     await new Promise(resolve => setTimeout(resolve, 700)); // Delay for visual effect...
     moveAi(gameState); // THEN execute AI move.
@@ -59,10 +58,12 @@ async function clickOnCell() {
   </div>
   <div :id="cellId" class="cell-empty" @click="clickOnCell()" v-else>
     <div class="debug-data" v-if="gameState.settings.debugMode === true">
-      Score: {{ gameState.board.debug[col]![row]?.score }}<br/>
-      Win: {{ gameState.board.debug[col]![row]?.win }}<br/>
-      PreventLoss: {{ gameState.board.debug[col]![row]?.preventLoss }}<br/>
-      LineUp: {{ gameState.board.debug[col]![row]?.lineUp }}<br/>
+      X: {{ x }}, Y: {{ y }}<br/>
+      Score: {{ gameState.board.debug[x]![y]?.score }}<br/>
+      Weight: {{ gameState.board.debug[x]![y]?.weight }}<br/>
+      Win: {{ gameState.board.debug[x]![y]?.win }}<br/>
+      PreventLoss: {{ gameState.board.debug[x]![y]?.preventLoss }}<br/>
+      LineUp: {{ gameState.board.debug[x]![y]?.lineUp }}<br/>
     </div>
   </div>
 </template>
@@ -93,7 +94,7 @@ async function clickOnCell() {
 @media (max-width: 768px) {
   .debug-data {
     padding: 2px;
-    font-size: 0.75rem;
+    font-size: 0.65rem;
   }
 }
 </style>

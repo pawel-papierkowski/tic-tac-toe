@@ -9,7 +9,7 @@ import type { GameState } from '@/code/types.ts';
 export function calcStrikeLineStyle(gameState : Ref<GameState>) {
   const strike = gameState.value.board.strike;
   if (!strike.present) return { display: 'none' };
-  //console.log(`Strike line. x1: ${strike.start.x}, y1: ${strike.y1}, x2: ${strike.x2}, y2: ${strike.y2}.`);
+  console.log(`Strike line. x1: ${strike.start.x}, y1: ${strike.start.y}, x2: ${strike.end.x}, y2: ${strike.end.y}.`);
 
   const startElement = resolveElement(strike.start.x, strike.start.y);
   const endElement = resolveElement(strike.end.x, strike.end.y);
@@ -20,7 +20,7 @@ export function calcStrikeLineStyle(gameState : Ref<GameState>) {
   const startY = startElement.centerY + strike.diffStart.y;
   const endX = endElement.centerX + strike.diffEnd.x;
   const endY = endElement.centerY + strike.diffEnd.y;
-  //console.log(`startElement: x=${startX},  y=${startY}. endElement: x=${endX}, y=${endY}.`);
+  console.log(`startElement: x=${startX},  y=${startY}. endElement: x=${endX}, y=${endY}.`);
 
   // Calculate length and angle
   const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));

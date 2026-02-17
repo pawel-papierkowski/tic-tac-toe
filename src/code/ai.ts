@@ -1,7 +1,8 @@
 import type { Ref } from 'vue';
 import type { GameState, LegalMove } from './types.ts';
-import { EnCellState, EnDifficulty, EnGameStatus, EnPlayerType } from './types.ts';
-import { resolveLegalMoves } from './legalMoves.ts';
+import { EnCellState, EnDifficulty, EnGameStatus, EnPlayerType, EnWhoFirst } from './types.ts';
+import { playerTypeDescr } from './data.ts';
+import { resolveLegalMoves } from '@/code/legalMoves.ts';
 import { fillDebugData } from '@/code/debug.ts';
 
 /**
@@ -29,7 +30,7 @@ export function moveAi(gameState : Ref<GameState>) {
  * @param legalMoves List of available legal moves. There is always at least one move.
  * @returns Picked legal move.
  */
-function moveAiDifficulty(gameState : Ref<GameState>, legalMoves : LegalMove[]) : LegalMove {
+export function moveAiDifficulty(gameState : Ref<GameState>, legalMoves : LegalMove[]) : LegalMove {
    // No point in picking move if there is only one move available...
   if (legalMoves.length === 1) return legalMoves[0]!;
 
@@ -133,6 +134,7 @@ function pickHighestScore(legalMoves : LegalMove[]) : LegalMove {
 /**
  * Place X or O, check if current player won the game, check tie, switch current player.
  * Note this function is used both by AI and human.
+ * @param gameState Reference to game state.
  * @param move Legal move to execute.
  */
 export function executeMove(gameState : Ref<GameState>, move : LegalMove) {
@@ -141,10 +143,12 @@ export function executeMove(gameState : Ref<GameState>, move : LegalMove) {
     console.error(`Tried to execute illegal move! X: ${move.x}, Y: ${move.y}`);
     return;
   }
+  console.log(`executeMove(): x=${move.x}, y=${move.y}.`);
   gameState.value.board.cells[move.x]![move.y] = move.who;
 
   // Check if win state was achieved.
   if (checkWinState(gameState)) {
+    console.log(`Win state detected for ${playerTypeDescr[gameState.value.board.currentPlayer]}.`);
     reactOnWin(gameState);
     return;
   }
@@ -159,8 +163,20 @@ export function executeMove(gameState : Ref<GameState>, move : LegalMove) {
   }
 
   // If we are here, we know game continues. Switch current player.
-  gameState.value.board.currentPlayer = gameState.value.board.currentPlayer === EnPlayerType.AI ? EnPlayerType.Human : EnPlayerType.AI;
+  gameState.value.board.currentPlayer = resolveNextPlayer(gameState);
   return;
+}
+
+/**
+ * Changes current player. If it is human vs human, swaps two human players. Otherwise swaps human and AI.
+ * @param gameState Reference to game state.
+ * @returns Player type.
+ */
+function resolveNextPlayer(gameState : Ref<GameState>) : EnPlayerType {
+  if (gameState.value.settings.whoFirst === EnWhoFirst.HumanVsHuman)
+    return gameState.value.board.currentPlayer === EnPlayerType.Human1 ? EnPlayerType.Human2 : EnPlayerType.Human1;
+  else
+    return gameState.value.board.currentPlayer === EnPlayerType.AI ? EnPlayerType.Human : EnPlayerType.AI;
 }
 
 /**
@@ -171,14 +187,26 @@ function reactOnWin(gameState : Ref<GameState>) {
   gameState.value.board.status = EnGameStatus.PlayerWon; // we know who won from currentPlayer
   gameState.value.statistics.tiesInRow = 0;
 
-  if (gameState.value.board.currentPlayer === EnPlayerType.Human) {
-    gameState.value.statistics.humanScore++;
-    gameState.value.statistics.humanWinInRow++;
-    gameState.value.statistics.aiWinInRow = 0;
-  } else {
-    gameState.value.statistics.aiScore++;
-    gameState.value.statistics.aiWinInRow++;
-    gameState.value.statistics.humanWinInRow = 0;
+  switch (gameState.value.board.currentPlayer) {
+    case EnPlayerType.Human:
+      gameState.value.statistics.humanScore++;
+      gameState.value.statistics.humanWinInRow++;
+      gameState.value.statistics.aiWinInRow = 0;
+      break;
+    case EnPlayerType.AI:
+      gameState.value.statistics.aiScore++;
+      gameState.value.statistics.aiWinInRow++;
+      gameState.value.statistics.humanWinInRow = 0;
+      break;
+    case EnPlayerType.Human1:
+      gameState.value.statistics.human1Score++;
+      gameState.value.statistics.human1WinInRow++;
+      gameState.value.statistics.human2WinInRow = 0;
+      break;
+    case EnPlayerType.Human2:
+      gameState.value.statistics.human2Score++;
+      gameState.value.statistics.human2WinInRow++;
+      gameState.value.statistics.human1WinInRow = 0;
   }
 }
 
@@ -200,18 +228,16 @@ function reactOnTie(gameState : Ref<GameState>) {
  * Check state of board and see if there are any three cells with same X or O state in row, column or across.
  * @param gameState Reference to game state.
  */
-function checkWinState(gameState : Ref<GameState>) : boolean {
+export function checkWinState(gameState : Ref<GameState>) : boolean {
   // Game is simple enough that we can just check all possibilities manually.
   gameState.value.board.strike.present = true; // how optimistic
 
   // first all cases from upper left corner (horizontal line, vertical line and cross)
   if (checkUpLeftCorner(gameState)) return true;
-  // now middle horizontal and vertical
-  if (checkMiddleLines(gameState)) return true;
-  // now horizontal and vertical at end
-  if (checkEndLines(gameState)) return true;
-  // last is upper right corner cross
-  if (checkUpRightCorner(gameState)) return true;
+  // now middle horizontal/vertical line and backward cross
+  if (checkCenter(gameState)) return true;
+  // last is horizontal/vertical line at end
+  if (checkBottomRightCorner(gameState)) return true;
 
   gameState.value.board.strike.present = false;
   return false; // no win state exist
@@ -219,7 +245,8 @@ function checkWinState(gameState : Ref<GameState>) : boolean {
 
 function checkUpLeftCorner(gameState : Ref<GameState>) : boolean {
   const cellState = gameState.value.board.cells[0]![0]; // upper left corner
-  if (cellState !== EnCellState.O && cellState != EnCellState.X) return false;
+  if (cellState !== EnCellState.O && cellState !== EnCellState.X) return false;
+
   gameState.value.board.strike.start.x = 0;
   gameState.value.board.strike.start.y = 0;
   if (gameState.value.board.cells[1]![0] === cellState && gameState.value.board.cells[2]![0] === cellState) { // horizontal line
@@ -227,11 +254,13 @@ function checkUpLeftCorner(gameState : Ref<GameState>) : boolean {
     gameState.value.board.strike.end.y = 0; // ???
     return true;                            // ???
   }
+
   if (gameState.value.board.cells[0]![1] === cellState && gameState.value.board.cells[0]![2] === cellState) { // vertical line
     gameState.value.board.strike.end.x = 0; // X??
     gameState.value.board.strike.end.y = 2; // X??
     return true;                            // X??
   }
+
   if (gameState.value.board.cells[1]![1] === cellState && gameState.value.board.cells[2]![2] === cellState) { // cross
     gameState.value.board.strike.end.x = 2; // X??
     gameState.value.board.strike.end.y = 2; // ?X?
@@ -240,31 +269,41 @@ function checkUpLeftCorner(gameState : Ref<GameState>) : boolean {
   return false;
 }
 
-function checkMiddleLines(gameState : Ref<GameState>) : boolean {
-  let cellState = gameState.value.board.cells[1]![0];
-  if (cellState !== EnCellState.O && cellState != EnCellState.X) return false;
-  gameState.value.board.strike.start.x = 1;
-  gameState.value.board.strike.start.y = 0;
-  if (gameState.value.board.cells[1]![1] === cellState && gameState.value.board.cells[1]![2] === cellState) { // horizontal middle line
-    gameState.value.board.strike.end.x = 1; // ???
-    gameState.value.board.strike.end.y = 2; // XXX
-    return true;                            // ???
-  }
-  cellState = gameState.value.board.cells[0]![1];
-  if (cellState !== EnCellState.O && cellState != EnCellState.X) return false;
-  gameState.value.board.strike.start.x = 0;
-  gameState.value.board.strike.start.y = 1;
-  if (gameState.value.board.cells[1]![1] === cellState && gameState.value.board.cells[2]![1] === cellState) { // vertical middle line
-    gameState.value.board.strike.end.x = 2; // ?X?
-    gameState.value.board.strike.end.y = 1; // ?X?
+function checkCenter(gameState : Ref<GameState>) : boolean {
+  const cellState = gameState.value.board.cells[1]![1]; // center cell
+  if (cellState !== EnCellState.O && cellState !== EnCellState.X) return false;
+
+  if (gameState.value.board.cells[1]![0] === cellState && gameState.value.board.cells[1]![2] === cellState) { // vertical middle line
+    gameState.value.board.strike.start.x = 1;
+    gameState.value.board.strike.start.y = 0;
+    gameState.value.board.strike.end.x = 1; // ?X?
+    gameState.value.board.strike.end.y = 2; // ?X?
     return true;                            // ?X?
   }
+
+  if (gameState.value.board.cells[0]![1] === cellState && gameState.value.board.cells[2]![1] === cellState) { // horizontal middle line
+    gameState.value.board.strike.start.x = 0;
+    gameState.value.board.strike.start.y = 1;
+    gameState.value.board.strike.end.x = 2; // ???
+    gameState.value.board.strike.end.y = 1; // XXX
+    return true;                            // ???
+  }
+
+  if (gameState.value.board.cells[2]![0] === cellState && gameState.value.board.cells[0]![2] === cellState) { // cross
+    gameState.value.board.strike.start.x = 2;
+    gameState.value.board.strike.start.y = 0;
+    gameState.value.board.strike.end.x = 0; // ??X
+    gameState.value.board.strike.end.y = 2; // ?X?
+    return true;                            // X??
+  }
+
   return false;
 }
 
-function checkEndLines(gameState : Ref<GameState>) : boolean {
+function checkBottomRightCorner(gameState : Ref<GameState>) : boolean {
   const cellState = gameState.value.board.cells[2]![2]; // bottom right corner
-  if (cellState !== EnCellState.O && cellState != EnCellState.X) return false;
+  if (cellState !== EnCellState.O && cellState !== EnCellState.X) return false;
+
   gameState.value.board.strike.start.x = 2;
   gameState.value.board.strike.start.y = 2;
   if (gameState.value.board.cells[1]![2] === cellState && gameState.value.board.cells[0]![2] === cellState) { // horizontal line
@@ -272,23 +311,11 @@ function checkEndLines(gameState : Ref<GameState>) : boolean {
     gameState.value.board.strike.end.y = 2; // ???
     return true;                            // XXX
   }
+
   if (gameState.value.board.cells[2]![1] === cellState && gameState.value.board.cells[2]![0] === cellState) { // vertical line
     gameState.value.board.strike.end.x = 2; // ??X
     gameState.value.board.strike.end.y = 0; // ??X
-    return true;                         // ??X
-  }
-  return false;
-}
-
-function checkUpRightCorner(gameState : Ref<GameState>) : boolean {
-  const cellState = gameState.value.board.cells[2]![0]; // upper right corner
-  if (cellState !== EnCellState.O && cellState != EnCellState.X) return false;
-  gameState.value.board.strike.start.x = 2;
-  gameState.value.board.strike.start.y = 0;
-  if (gameState.value.board.cells[1]![1] === cellState && gameState.value.board.cells[0]![2] === cellState) { // cross
-    gameState.value.board.strike.end.x = 0; // ??X
-    gameState.value.board.strike.end.y = 2; // ?X?
-    return true;                            // X??
+    return true;                            // ??X
   }
   return false;
 }

@@ -71,11 +71,11 @@ async function nextRound() {
     <div class="lineskip"></div>
     <!-- 1st row -->
     <div></div>
-    <TicTacToeCell v-model="gameState" :col="0" :row="0" />
+    <TicTacToeCell v-model="gameState" :x="0" :y="0" />
     <div class="boardline-vt"></div>
-    <TicTacToeCell v-model="gameState" :col="1" :row="0" />
+    <TicTacToeCell v-model="gameState" :x="1" :y="0" />
     <div class="boardline-vt"></div>
-    <TicTacToeCell v-model="gameState" :col="2" :row="0" />
+    <TicTacToeCell v-model="gameState" :x="2" :y="0" />
     <div></div>
 
     <div></div>
@@ -84,11 +84,11 @@ async function nextRound() {
 
     <!-- 2nd row -->
     <div></div>
-    <TicTacToeCell v-model="gameState" :col="0" :row="1" />
+    <TicTacToeCell v-model="gameState" :x="0" :y="1" />
     <div class="boardline-vm"></div>
-    <TicTacToeCell v-model="gameState" :col="1" :row="1" />
+    <TicTacToeCell v-model="gameState" :x="1" :y="1" />
     <div class="boardline-vm"></div>
-    <TicTacToeCell v-model="gameState" :col="2" :row="1" />
+    <TicTacToeCell v-model="gameState" :x="2" :y="1" />
     <div></div>
 
     <div></div>
@@ -97,11 +97,11 @@ async function nextRound() {
 
     <!-- 3rd row -->
     <div></div>
-    <TicTacToeCell v-model="gameState" :col="0" :row="2" />
+    <TicTacToeCell v-model="gameState" :x="0" :y="2" />
     <div class="boardline-vb"></div>
-    <TicTacToeCell v-model="gameState" :col="1" :row="2" />
+    <TicTacToeCell v-model="gameState" :x="1" :y="2" />
     <div class="boardline-vb"></div>
-    <TicTacToeCell v-model="gameState" :col="2" :row="2" />
+    <TicTacToeCell v-model="gameState" :x="2" :y="2" />
     <div></div>
 
     <div class="lineskip"></div>

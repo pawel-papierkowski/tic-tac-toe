@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type GameState } from '@/code/types.ts'
+import { EnWhoFirst, type GameState } from '@/code/types.ts'
 import { difficultyDescr, playerTypeDescr } from '@/code/data.ts';
 
 // It is used only in template, so we need to disable this warning.
@@ -25,14 +25,26 @@ const props = defineProps<{gameState: GameState}>(); // read-only
       <div>{{ gameState.statistics.ties }}</div>
       <div>Ties in row:</div>
       <div>{{ gameState.statistics.tiesInRow }}</div>
-      <div>Human wins:</div>
-      <div>{{ gameState.statistics.humanScore }}</div>
-      <div>Human wins in row:</div>
-      <div>{{ gameState.statistics.humanWinInRow }}</div>
-      <div>AI wins:</div>
-      <div>{{ gameState.statistics.aiScore }}</div>
-      <div>AI wins in row:</div>
-      <div>{{ gameState.statistics.aiWinInRow }}</div>
+      <template v-if="gameState.settings.whoFirst !== EnWhoFirst.HumanVsHuman">
+        <div>Human wins:</div>
+        <div>{{ gameState.statistics.humanScore }}</div>
+        <div>Human wins in row:</div>
+        <div>{{ gameState.statistics.humanWinInRow }}</div>
+        <div>AI wins:</div>
+        <div>{{ gameState.statistics.aiScore }}</div>
+        <div>AI wins in row:</div>
+        <div>{{ gameState.statistics.aiWinInRow }}</div>
+      </template>
+      <template v-if="gameState.settings.whoFirst === EnWhoFirst.HumanVsHuman">
+        <div>Human 1 wins:</div>
+        <div>{{ gameState.statistics.human1Score }}</div>
+        <div>Human 1 wins in row:</div>
+        <div>{{ gameState.statistics.human1WinInRow }}</div>
+        <div>Human 2 wins:</div>
+        <div>{{ gameState.statistics.human2Score }}</div>
+        <div>Human 2 wins in row:</div>
+        <div>{{ gameState.statistics.human2WinInRow }}</div>
+      </template>
     </div>
   </div>
 </template>

@@ -10,8 +10,6 @@ import { EnCellState, EnDifficulty, createLegalMove } from './types.ts';
  * @returns Array of legal moves. If array is empty, no move is possible, making it tie.
  */
 export function resolveLegalMoves(gameState : Ref<GameState>, who: EnCellState, calcScore : boolean) : LegalMove[] {
-  console.log("resolveLegalMoves() called.");
-
   // Game is simple enough that we can just brute-force it.
   // Find all legal moves and assign score to each one.
   const legalMoves : LegalMove[] = []; // empty array
@@ -22,6 +20,7 @@ export function resolveLegalMoves(gameState : Ref<GameState>, who: EnCellState, 
       legalMoves.push(legalMove);
     }
   }
+  //console.log(`resolveLegalMoves() called. ${legalMoves.length} move(s) found.`);
   return legalMoves;
 }
 
@@ -41,7 +40,7 @@ export function fillLegalMove(gameState : Ref<GameState>, who: EnCellState, x: n
     legalMove.preventLoss = calcPreventLoss(gameState, who, x, y);
     legalMove.lineUp = calcLineUp(gameState, who, x, y);
     legalMove.score = calcMoveScore(legalMove);
-    legalMove.weight = calcMoveWeight(gameState, legalMove);
+    legalMove.weight = calcMoveWeight(gameState, legalMove); // note in many cases score === weight
   }
   return legalMove;
 }
@@ -60,26 +59,12 @@ function calcWin(gameState : Ref<GameState>, who: EnCellState, x: number, y: num
   // check horizontal line
   const otherX1 = x === 1 ? 0 : 1;
   const otherX2 = x === 2 ? 0 : 2;
-  if (gameState.value.board.cells[otherX1]![y] === who && gameState.value.board.cells[otherX2]![y] === who) {
-    gameState.value.board.strike.present = true;
-    gameState.value.board.strike.start.x = 0;
-    gameState.value.board.strike.start.y = y;
-    gameState.value.board.strike.end.x = 2;
-    gameState.value.board.strike.end.y = y;
-    return true;
-  }
+  if (gameState.value.board.cells[otherX1]![y] === who && gameState.value.board.cells[otherX2]![y] === who) return true;
 
   // check vertical line
   const otherY1 = y === 1 ? 0 : 1;
   const otherY2 = y === 2 ? 0 : 2;
-  if (gameState.value.board.cells[x]![otherY1] === who && gameState.value.board.cells[x]![otherY2] === who) {
-    gameState.value.board.strike.present = true;
-    gameState.value.board.strike.start.x = x;
-    gameState.value.board.strike.start.y = 0;
-    gameState.value.board.strike.end.x = x;
-    gameState.value.board.strike.end.y = 2;
-    return true;
-  }
+  if (gameState.value.board.cells[x]![otherY1] === who && gameState.value.board.cells[x]![otherY2] === who) return true;
 
   // check cross /: coords 0,2 and 1,1 and 2,0
   if ((x === 0 && y === 2) || (x === 1 && y === 1) || (x === 2 && y === 0)) {
@@ -87,28 +72,14 @@ function calcWin(gameState : Ref<GameState>, who: EnCellState, x: number, y: num
     const crossY1 = y===2 ? 1 : 2;
     const crossX2 = x===2 ? 1 : 2;
     const crossY2 = y===0 ? 1 : 0;
-    if (gameState.value.board.cells[crossX1]![crossY1] === who && gameState.value.board.cells[crossX2]![crossY2] === who) {
-    gameState.value.board.strike.present = true;
-    gameState.value.board.strike.start.x = 0;
-    gameState.value.board.strike.start.y = 2;
-    gameState.value.board.strike.end.x = 2;
-    gameState.value.board.strike.end.y = 0;
-      return true;
-    }
+    if (gameState.value.board.cells[crossX1]![crossY1] === who && gameState.value.board.cells[crossX2]![crossY2] === who) return true;
   }
 
   // check cross \: coords 0,0 and 1,1 and 2,2
   if (x === y) {
     const cross1 = x === 1 ? 0 : 1;
     const cross2 = x === 2 ? 0 : 2;
-    if (gameState.value.board.cells[cross1]![cross1] === who && gameState.value.board.cells[cross2]![cross2] === who) {
-    gameState.value.board.strike.present = true;
-    gameState.value.board.strike.start.x = 0;
-    gameState.value.board.strike.start.y = 0;
-    gameState.value.board.strike.end.x = 2;
-    gameState.value.board.strike.end.y = 2;
-      return true;
-    }
+    if (gameState.value.board.cells[cross1]![cross1] === who && gameState.value.board.cells[cross2]![cross2] === who) return true;
   }
 
   return false;
@@ -223,5 +194,11 @@ function calcMoveWeight(gameState : Ref<GameState>, move: LegalMove) : number {
   if (gameState.value.settings.difficulty !== EnDifficulty.Medium) return move.score;
   // Medium difficulty has special weights that make game easier than on hard.
   // AI is less likely to pick winning move etc.
-  return 10;
+  let score = 10; // basic weight for move
+  if (move.x === 1 && move.y === 1) score = 50; // center position has higher weight
+  score += move.lineUp*25; // line up bonus
+  // todo: fork bonus
+  if (move.preventLoss) score += 100;
+  if (move.win) score += 1000;
+  return score;
 }

@@ -35,6 +35,7 @@ function whoAmI(gameState : Ref<GameState>) : EnCellState {
 function saveDebugData(gameState : Ref<GameState>, move: LegalMove) {
   const debugCell : DebugData = gameState.value.board.debug[move.x]![move.y]!;
   debugCell.score = move.score;
+  debugCell.weight = move.weight;
   debugCell.win = move.win;
   debugCell.preventLoss = move.preventLoss;
   debugCell.lineUp = move.lineUp;

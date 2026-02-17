@@ -1,25 +1,8 @@
-import { type Component, ref, type Ref } from 'vue';
 import { describe, it, expect } from 'vitest';
-import { mount, VueWrapper } from '@vue/test-utils';
+import { mountWithModel } from './utils/mounting.ts';
 
 import ViewMainMenu from '@/components/ViewMainMenu.vue';
 import { createGameState, EnDifficulty, EnWhoFirst } from '@/code/types.ts';
-
-function mountWithModel<T>(component: Component, initialModel: T):
-  { wrapper: VueWrapper; modelRef: Ref<T> } {
-  const modelRef = ref(initialModel) as Ref<T>;
-
-  const wrapper = mount(component, {
-    props: {
-      modelValue: modelRef.value,
-      'onUpdate:modelValue': (e: T) => {
-        modelRef.value = e;
-        wrapper.setProps({ modelValue: e });
-      }
-    }
-  });
-  return {wrapper, modelRef};
-}
 
 describe('ViewMainMenu', () => {
   it('displays "difficulty" setting', () => {

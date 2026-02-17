@@ -20,9 +20,10 @@ export function prepareNextRound(gameState : Ref<GameState>) {
   switch (gameState.value.settings.whoFirst) {
     case EnWhoFirst.Random : gameState.value.board.firstPlayer = Math.random() >= 0.5 ? EnPlayerType.AI : EnPlayerType.Human; break;
     case EnWhoFirst.Human : gameState.value.board.firstPlayer = EnPlayerType.Human; break;
-    case EnWhoFirst.AI : gameState.value.board.firstPlayer = EnPlayerType.AI;
+    case EnWhoFirst.AI : gameState.value.board.firstPlayer = EnPlayerType.AI; break;
+    case EnWhoFirst.HumanVsHuman : gameState.value.board.firstPlayer = EnPlayerType.Human1; break;
   }
   gameState.value.board.currentPlayer = gameState.value.board.firstPlayer;
-  
+
   gameState.value.statistics.round++;
 }
