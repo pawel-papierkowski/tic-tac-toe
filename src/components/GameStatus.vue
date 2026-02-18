@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { EnGameStatus, EnPlayerType, type GameState } from '@/code/types.ts'
-import { playerTypeDescr } from '@/code/data.ts';
+import { type GameState } from '@/code/data/types.ts';
+import { EnGameStatus, EnPlayerType } from '@/code/data/enums.ts';
+import { playerTypeDescr } from '@/code/data/data.ts';
 
 // It is used only in template, so we need to disable this warning.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const props = defineProps<{gameState: GameState}>(); // read-only
+const props = defineProps<{ gameState: GameState }>(); // read-only
 </script>
 
 <template>
@@ -13,7 +14,8 @@ const props = defineProps<{gameState: GameState}>(); // read-only
       <div v-if="gameState.board.currentPlayer === EnPlayerType.Human">Your turn!</div>
       <div v-else-if="gameState.board.currentPlayer === EnPlayerType.Human1">Human 1's turn.</div>
       <div v-else-if="gameState.board.currentPlayer === EnPlayerType.Human2">Human 2's turn.</div>
-      <div v-else>AI is thinking...
+      <div v-else>
+        AI is thinking...
         <!-- CSS cannot access .svg files in <img>, so we use inline SVG code. Bah. -->
         <svg class="spinner" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 155 155" fill="none">
           <g stroke="currentColor" stroke-width="35" stroke-linecap="round">
@@ -23,9 +25,7 @@ const props = defineProps<{gameState: GameState}>(); // read-only
         </svg>
       </div>
     </div>
-    <div v-else-if="gameState.board.status == EnGameStatus.Tie">
-      Game ended in tie!
-    </div>
+    <div v-else-if="gameState.board.status == EnGameStatus.Tie">Game ended in draw!</div>
     <div v-else-if="gameState.board.status == EnGameStatus.PlayerWon">
       {{ playerTypeDescr[gameState.board.currentPlayer] }} won!
     </div>
@@ -34,10 +34,9 @@ const props = defineProps<{gameState: GameState}>(); // read-only
 </template>
 
 <style scoped>
-
 .status {
   display: flex;
-  align-items: center;     /* Vertical centering */
+  align-items: center; /* Vertical centering */
   justify-content: center; /* Horizontal centering */
   margin: 5px;
 }
@@ -63,12 +62,12 @@ const props = defineProps<{gameState: GameState}>(); // read-only
   to {
     transform: rotate(360deg);
   }
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
     opacity: 0.7;
   }
 }
-
 </style>

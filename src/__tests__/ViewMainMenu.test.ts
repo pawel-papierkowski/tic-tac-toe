@@ -1,8 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { mountWithModel } from './utils/mounting.ts';
 
+import { createGameState } from './../../src/code/data/types.ts';
+import { EnDifficulty, EnWhoFirst } from './../../src/code/data/enums.ts';
+
 import ViewMainMenu from '@/components/ViewMainMenu.vue';
-import { createGameState, EnDifficulty, EnWhoFirst } from '@/code/types.ts';
 
 describe('ViewMainMenu', () => {
   it('displays "difficulty" setting', () => {

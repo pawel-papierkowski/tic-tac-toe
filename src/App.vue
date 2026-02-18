@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { createGameState, type GameState } from '@/code/types.ts'
-import ViewMainMenu from '@/components/ViewMainMenu.vue'
-import ViewTicTacToe from '@/components/ViewTicTacToe.vue'
+import { ref, onMounted } from 'vue';
+import { createGameState, type GameState } from '@/code/data/types';
+import { gameFundProp } from '@/code/data/data';
+
+import ViewMainMenu from '@/components/ViewMainMenu.vue';
+import ViewTicTacToe from '@/components/ViewTicTacToe.vue';
 
 onMounted(() => {
   preloadImages();
@@ -13,14 +15,9 @@ const gameState = ref<GameState>(createGameState());
 
 // Preload images - should solve Firefox issue with delayed image showing.
 function preloadImages() {
-  const images = [
-    '/cell_0.svg',
-    '/cell_1.svg',
-    '/cell_2.svg',
-    '/cell_3.svg',
-  ];
+  const images = ['/cell_0.svg', '/cell_1.svg', '/cell_2.svg', '/cell_3.svg'];
 
-  images.forEach(src => {
+  images.forEach((src) => {
     const img = new Image();
     img.src = src;
   });
@@ -29,7 +26,7 @@ function preloadImages() {
 
 <template>
   <header>
-    <h1>TIC TAC TOE</h1>
+    <h1>{{ gameFundProp.title }}</h1>
   </header>
 
   <main>
@@ -42,9 +39,7 @@ function preloadImages() {
     </template>
   </main>
 
-  <footer>
-    Paweł Papierkowski
-  </footer>
+  <footer>{{ gameFundProp.author }} v. {{ gameFundProp.version }}</footer>
 </template>
 
 <style scoped>

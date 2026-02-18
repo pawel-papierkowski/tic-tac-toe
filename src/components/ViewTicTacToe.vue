@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useWindowSize } from '@vueuse/core'; // refDebounced
-import { EnGameStatus, EnPlayerType, type GameState } from '@/code/types.ts';
+import { type GameState } from '@/code/data/types.ts';
+import { EnGameStatus, EnPlayerType } from '@/code/data/enums.ts';
 import { changeScreen } from '@/code/common.ts';
 import { prepareNextRound } from '@/code/ticTacToe.ts';
 import { calcStrikeLineStyle } from '@/code/lineStrike.ts';
@@ -39,7 +40,7 @@ function toMainMenu() {
  * Check if can start next round.
  * @returns True if can start next round, otherwise false.
  */
-function canStartNextRound() : boolean {
+function canStartNextRound(): boolean {
   if (gameState.value.board.status == EnGameStatus.PlayerWon || gameState.value.board.status == EnGameStatus.Tie)
     return true;
   return false;
@@ -51,7 +52,7 @@ function canStartNextRound() : boolean {
 async function nextRound() {
   prepareNextRound(gameState);
   if (gameState.value.board.firstPlayer == EnPlayerType.AI) {
-    await new Promise(resolve => setTimeout(resolve, 700)); // Delay for visual effect...
+    await new Promise((resolve) => setTimeout(resolve, 700)); // Delay for visual effect...
     moveAi(gameState); // THEN execute AI move.
   } else {
     fillDebugData(gameState);
@@ -115,7 +116,6 @@ async function nextRound() {
 </template>
 
 <style scoped>
-
 .gameboard {
   display: grid;
   grid-template-columns: repeat(3, 10px 200px) 10px;
@@ -129,7 +129,7 @@ async function nextRound() {
 }
 
 .lineskip {
-  grid-column: 1 / -1
+  grid-column: 1 / -1;
 }
 
 /* Lines on board. */
@@ -149,7 +149,7 @@ async function nextRound() {
 .boardline-h {
   background-color: #444444;
   border-radius: 10px;
-  grid-column: span 5
+  grid-column: span 5;
 }
 
 .winning-line {
@@ -207,5 +207,4 @@ async function nextRound() {
     border-radius: 5px;
   }
 }
-
 </style>

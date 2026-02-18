@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { EnWhoFirst, type GameState } from '@/code/types.ts'
-import { difficultyDescr, playerTypeDescr } from '@/code/data.ts';
+import { type GameState } from '@/code/data/types.ts';
+import { EnWhoFirst } from '@/code/data/enums.ts';
+import { difficultyDescr, playerTypeDescr } from '@/code/data/data.ts';
 
 // It is used only in template, so we need to disable this warning.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const props = defineProps<{gameState: GameState}>(); // read-only
+const props = defineProps<{ gameState: GameState }>(); // read-only
 </script>
 
 <template>
@@ -21,9 +22,11 @@ const props = defineProps<{gameState: GameState}>(); // read-only
       <h2>SCOREBOARD</h2>
       <div>Round:</div>
       <div>{{ gameState.statistics.round }}</div>
-      <div>Ties:</div>
+      <div>Move number:</div>
+      <div>{{ gameState.statistics.moveCount }}</div>
+      <div>Draws:</div>
       <div>{{ gameState.statistics.ties }}</div>
-      <div>Ties in row:</div>
+      <div>Draws in row:</div>
       <div>{{ gameState.statistics.tiesInRow }}</div>
       <template v-if="gameState.settings.whoFirst !== EnWhoFirst.HumanVsHuman">
         <div>Human wins:</div>
@@ -50,7 +53,6 @@ const props = defineProps<{gameState: GameState}>(); // read-only
 </template>
 
 <style scoped>
-
 /* Common. */
 
 h2 {
@@ -68,8 +70,8 @@ h2 {
   top: 0;
   right: 0;
 
-  overflow-y: auto;  /* Scrollable if content is long */
-  z-index: 100;  /* Ensure it's above other content */
+  overflow-y: auto; /* Scrollable if content is long */
+  z-index: 100; /* Ensure it's above other content */
 
   min-width: 250px;
   max-width: 500px;
@@ -87,7 +89,7 @@ h2 {
   border-radius: 10px;
 
   background-color: #f0f0f0;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 
   font-size: 14px;
   text-align: center;
@@ -105,7 +107,7 @@ h2 {
   border-radius: 10px;
 
   background-color: #f0f0f0;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 
   font-size: 14px;
   text-align: left;
@@ -123,22 +125,21 @@ h2 {
 @media (max-width: 768px) {
   h2 {
     font-size: 17px;
-  text-shadow: 0 0 2px currentColor;
+    text-shadow: 0 0 2px currentColor;
   }
 
   .info {
     margin: 7px 10px;
     padding: 2px 10px;
     font-size: 12px;
-    box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
   }
 
   .scoreboard {
     margin: 7px 10px;
     padding: 2px 10px;
     font-size: 12px;
-    box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
   }
 }
-
 </style>

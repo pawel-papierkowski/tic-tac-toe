@@ -2,9 +2,10 @@ import { describe, it, expect } from 'vitest';
 import { ref } from 'vue';
 import { assertMove, assertWinState } from '../utils/assertions.ts';
 
-import { resolveLegalMoves, fillLegalMove, } from '../../code/legalMoves.ts';
+import { resolveLegalMoves, fillLegalMove } from '../../code/legalMoves.ts';
 import { checkWinState, moveAiDifficulty } from '../../code/ai.ts';
-import { createGameState, EnCellState, EnDifficulty, StrikeData, type LegalMove } from '../../code/types.ts';
+import { createGameState, StrikeData, type LegalMove } from '../../code/data/types.ts';
+import { EnDifficulty, EnCellState } from '../../code/data/enums.ts';
 
 describe('Tests of AI.', () => {
   describe('Win states', () => {
@@ -15,11 +16,11 @@ describe('Tests of AI.', () => {
       gameState.value.board.cells[2]![0] = EnCellState.X;
       const actualResult = checkWinState(gameState);
 
-      const expectedStrike : Partial<StrikeData> = {
+      const expectedStrike: Partial<StrikeData> = {
         present: true,
-        start: {x:0, y:0},
-        end: {x:2, y:0},
-      }
+        start: { x: 0, y: 0 },
+        end: { x: 2, y: 0 },
+      };
       expect(actualResult, `Win state mismatch.`).toBe(true);
       assertWinState(gameState.value.board.strike, expectedStrike);
     });
@@ -31,11 +32,11 @@ describe('Tests of AI.', () => {
       gameState.value.board.cells[0]![2] = EnCellState.O;
       const actualResult = checkWinState(gameState);
 
-      const expectedStrike : Partial<StrikeData> = {
+      const expectedStrike: Partial<StrikeData> = {
         present: true,
-        start: {x:0, y:0},
-        end: {x:0, y:2},
-      }
+        start: { x: 0, y: 0 },
+        end: { x: 0, y: 2 },
+      };
       expect(actualResult, `Win state mismatch.`).toBe(true);
       assertWinState(gameState.value.board.strike, expectedStrike);
     });
@@ -47,11 +48,11 @@ describe('Tests of AI.', () => {
       gameState.value.board.cells[2]![2] = EnCellState.X;
       const actualResult = checkWinState(gameState);
 
-      const expectedStrike : Partial<StrikeData> = {
+      const expectedStrike: Partial<StrikeData> = {
         present: true,
-        start: {x:0, y:0},
-        end: {x:2, y:2},
-      }
+        start: { x: 0, y: 0 },
+        end: { x: 2, y: 2 },
+      };
       expect(actualResult, `Win state mismatch.`).toBe(true);
       assertWinState(gameState.value.board.strike, expectedStrike);
     });
@@ -63,11 +64,11 @@ describe('Tests of AI.', () => {
       gameState.value.board.cells[1]![2] = EnCellState.X;
       const actualResult = checkWinState(gameState);
 
-      const expectedStrike : Partial<StrikeData> = {
+      const expectedStrike: Partial<StrikeData> = {
         present: true,
-        start: {x:1, y:0},
-        end: {x:1, y:2},
-      }
+        start: { x: 1, y: 0 },
+        end: { x: 1, y: 2 },
+      };
       expect(actualResult, `Win state mismatch.`).toBe(true);
       assertWinState(gameState.value.board.strike, expectedStrike);
     });
@@ -79,11 +80,11 @@ describe('Tests of AI.', () => {
       gameState.value.board.cells[2]![1] = EnCellState.O;
       const actualResult = checkWinState(gameState);
 
-      const expectedStrike : Partial<StrikeData> = {
+      const expectedStrike: Partial<StrikeData> = {
         present: true,
-        start: {x:0, y:1},
-        end: {x:2, y:1},
-      }
+        start: { x: 0, y: 1 },
+        end: { x: 2, y: 1 },
+      };
       expect(actualResult, `Win state mismatch.`).toBe(true);
       assertWinState(gameState.value.board.strike, expectedStrike);
     });
@@ -95,11 +96,11 @@ describe('Tests of AI.', () => {
       gameState.value.board.cells[0]![2] = EnCellState.X;
       const actualResult = checkWinState(gameState);
 
-      const expectedStrike : Partial<StrikeData> = {
+      const expectedStrike: Partial<StrikeData> = {
         present: true,
-        start: {x:2, y:0},
-        end: {x:0, y:2},
-      }
+        start: { x: 2, y: 0 },
+        end: { x: 0, y: 2 },
+      };
       expect(actualResult, `Win state mismatch.`).toBe(true);
       assertWinState(gameState.value.board.strike, expectedStrike);
     });
@@ -111,11 +112,11 @@ describe('Tests of AI.', () => {
       gameState.value.board.cells[2]![2] = EnCellState.X;
       const actualResult = checkWinState(gameState);
 
-      const expectedStrike : Partial<StrikeData> = {
+      const expectedStrike: Partial<StrikeData> = {
         present: true,
-        start: {x:2, y:2},
-        end: {x:0, y:2},
-      }
+        start: { x: 2, y: 2 },
+        end: { x: 0, y: 2 },
+      };
       expect(actualResult, `Win state mismatch.`).toBe(true);
       assertWinState(gameState.value.board.strike, expectedStrike);
     });
@@ -127,11 +128,11 @@ describe('Tests of AI.', () => {
       gameState.value.board.cells[2]![2] = EnCellState.O;
       const actualResult = checkWinState(gameState);
 
-      const expectedStrike : Partial<StrikeData> = {
+      const expectedStrike: Partial<StrikeData> = {
         present: true,
-        start: {x:2, y:2},
-        end: {x:2, y:0},
-      }
+        start: { x: 2, y: 2 },
+        end: { x: 2, y: 0 },
+      };
       expect(actualResult, `Win state mismatch.`).toBe(true);
       assertWinState(gameState.value.board.strike, expectedStrike);
     });
@@ -152,12 +153,21 @@ describe('Tests of AI.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 1060, // medium has different value compared to score
-        score: 100060, // winning move has big score bonus
-        win: true,
-        preventLoss: false,
-        lineUp: 2,
-      }
+        weight: 570, // medium has different value compared to score
+        score: 100070, // winning move has big score bonus
+        props: {
+          win: true,
+          futWin: false,
+          fork: false,
+          lineUp: 2,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
       assertMove(actualMove, expectedMove);
     });
 
@@ -168,7 +178,7 @@ describe('Tests of AI.', () => {
       // Empty board and AI starts game, so all cells are available as moves.
       expect(legalMoves.length, `Mismatch of amount of available moves.`).toBe(9);
 
-      const actualMove : LegalMove = moveAiDifficulty(gameState, legalMoves);
+      const actualMove: LegalMove = moveAiDifficulty(gameState, legalMoves);
       // If AI starts game, best score is middle of board. On impossible it will always pick that cell.
       // I know, boring.
       const expectedMove: LegalMove = {
@@ -177,10 +187,19 @@ describe('Tests of AI.', () => {
         y: 1,
         weight: 50,
         score: 50,
-        win: false,
-        preventLoss: false,
-        lineUp: 0,
-      }
+        props: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
       assertMove(actualMove, expectedMove);
     });
   });

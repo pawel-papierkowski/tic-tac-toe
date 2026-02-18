@@ -2,8 +2,9 @@ import { describe, it } from 'vitest';
 import { ref } from 'vue';
 import { assertMove } from '../utils/assertions.ts';
 
-import { fillLegalMove, } from '../../code/legalMoves.ts';
-import { createGameState, EnCellState, type LegalMove } from '../../code/types.ts';
+import { fillLegalMove } from '../../code/legalMoves.ts';
+import { createGameState, type LegalMove } from '../../code/data/types.ts';
+import { EnCellState } from '../../code/data/enums.ts';
 
 describe('Tests of legal moves.', () => {
   describe('Scoring', () => {
@@ -15,16 +16,26 @@ describe('Tests of legal moves.', () => {
       const y = 0;
 
       const actualMove = fillLegalMove(gameState, who, x, y, false);
+      // Default values when calcScoring is false.
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
-        weight: 0, // Should be 0 when calcScore is false.
-        score: 0, // Should be 0 when calcScore is false.
-        win: false, // Default value when calcScore is false.
-        preventLoss: false, // Default value when calcScore is false.
-        lineUp: 0, // Default value when calcScore is false.
-      }
+        weight: 0,
+        score: 0,
+        props: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
       assertMove(actualMove, expectedMove);
     });
 
@@ -32,7 +43,7 @@ describe('Tests of legal moves.', () => {
       const gameState = ref(createGameState());
       // note game state is untouched (all cells are empty)
       const who = EnCellState.O;
-      const x = 2;
+      const x = 1;
       const y = 0;
 
       const actualMove = fillLegalMove(gameState, who, x, y, true);
@@ -42,10 +53,49 @@ describe('Tests of legal moves.', () => {
         y: y, // always same
         weight: 10, // same as score
         score: 10, // basic score
-        win: false,
-        preventLoss: false,
-        lineUp: 0,
-      }
+        props: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
+      assertMove(actualMove, expectedMove);
+    });
+
+    it('calculates correct score for corner position', () => {
+      const gameState = ref(createGameState());
+      // note game state is untouched (all cells are empty)
+      const who = EnCellState.X;
+      const x = 2;
+      const y = 2;
+
+      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const expectedMove: LegalMove = {
+        who: who,
+        x: x,
+        y: y, // always same
+        weight: 20, // same as score
+        score: 20, // score for corner cell
+        props: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
       assertMove(actualMove, expectedMove);
     });
 
@@ -63,10 +113,19 @@ describe('Tests of legal moves.', () => {
         y: y, // always same
         weight: 50, // same as score
         score: 50, // score for center cell
-        win: false,
-        preventLoss: false,
-        lineUp: 0,
-      }
+        props: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
       assertMove(actualMove, expectedMove);
     });
   });
@@ -84,15 +143,57 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 35, // same as score
-        score: 35, // lineup provides bonus to score
-        win: false,
-        preventLoss: false,
-        lineUp: 1,
-      }
+        weight: 45, // same as score
+        score: 45, // lineup provides bonus to score
+        props: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 1,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
       assertMove(actualMove, expectedMove);
     });
 
+    it('detects NO lineup', () => {
+      const gameState = ref(createGameState());
+      gameState.value.board.cells[0]![0] = EnCellState.X;
+      gameState.value.board.cells[0]![1] = EnCellState.O; // prevents lineup from counting
+      const who = EnCellState.X;
+      const x = 0;
+      const y = 2;
+
+      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const expectedMove: LegalMove = {
+        who: who,
+        x: x,
+        y: y, // always same
+        weight: 20, // same as score
+        score: 20, // no lineup bonus
+        props: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
+      assertMove(actualMove, expectedMove);
+    });
+  });
+
+  describe('Fork situations', () => {
     it('detects double lineup that is not winning move', () => {
       const gameState = ref(createGameState());
       gameState.value.board.cells[0]![2] = EnCellState.X;
@@ -106,12 +207,21 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 60, // same as score
-        score: 60, // lineup provides bonus to score
-        win: false,
-        preventLoss: false,
-        lineUp: 2,
-      }
+        weight: 1070, // same as score
+        score: 1070, // lineup provides bonus to score
+        props: {
+          win: false,
+          futWin: false,
+          fork: true,
+          lineUp: 2,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
       assertMove(actualMove, expectedMove);
     });
 
@@ -129,36 +239,88 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 85, // same as score
-        score: 85, // lineup provides bonus to score
-        win: false,
-        preventLoss: false,
-        lineUp: 3,
-      }
+        weight: 1095, // same as score
+        score: 1095, // lineup provides bonus to score
+        props: {
+          win: false,
+          futWin: false,
+          fork: true,
+          lineUp: 3,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
       assertMove(actualMove, expectedMove);
     });
 
-    it('detects NO lineup', () => {
-      const gameState = ref(createGameState())
-      gameState.value.board.cells[0]![0] = EnCellState.X;
-      gameState.value.board.cells[0]![1] = EnCellState.O; // prevents lineup from counting
+    it('detects direct fork on realistic board', () => {
+      const gameState = ref(createGameState());
+      gameState.value.board.cells[2]![0] = EnCellState.X; // O?X
+      gameState.value.board.cells[0]![0] = EnCellState.O; // ?O?
+      gameState.value.board.cells[0]![2] = EnCellState.X; // X??
+      gameState.value.board.cells[1]![1] = EnCellState.O;
       const who = EnCellState.X;
-      const x = 0;
-      const y = 2;
+      const x = 2;
+      const y = 2; // this move creates fork for board defined above
 
       const actualMove = fillLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
-        weight: 10, // same as score
-        score: 10, // no lineup bonus
-        win: false,
-        preventLoss: false,
-        lineUp: 0,
-      }
+        weight: 11070, // same as score
+        score: 11070, // fork provides large bonus to score
+        props: {
+          win: false,
+          futWin: false,
+          fork: true,
+          lineUp: 2,
+        },
+        oppProps: {
+          win: true,
+          futWin: false,
+          fork: false,
+          lineUp: 2,
+        },
+      };
       assertMove(actualMove, expectedMove);
     });
+/*
+    it('detects future fork on realistic board', () => {
+      const gameState = ref(createGameState());
+      gameState.value.board.cells[0]![0] = EnCellState.X; // X??
+      gameState.value.board.cells[1]![1] = EnCellState.O; // ?O?
+                                                          // ???
+      const who = EnCellState.X;
+      const x = 2;
+      const y = 2; // this move creates future fork for board defined above
+
+      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const expectedMove: LegalMove = {
+        who: who,
+        x: x,
+        y: y, // always same
+        weight: 20, // same as score
+        score: 20, // fork provides large bonus to score
+        props: {
+          win: false,
+          futWin: false,
+          fork: true,
+          lineUp: 0,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
+      assertMove(actualMove, expectedMove);
+    });*/
   });
 
   describe('Win situations', () => {
@@ -175,12 +337,21 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 100060, // same as score
-        score: 100060, // winning move has big score bonus
-        win: true,
-        preventLoss: false,
-        lineUp: 2,
-      }
+        weight: 100070, // same as score
+        score: 100070, // winning move has big score bonus
+        props: {
+          win: true,
+          futWin: false,
+          fork: false,
+          lineUp: 2,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
       assertMove(actualMove, expectedMove);
     });
 
@@ -199,10 +370,19 @@ describe('Tests of legal moves.', () => {
         y: y, // always same
         weight: 100060, // same as score
         score: 100060, // winning move has big score bonus
-        win: true,
-        preventLoss: false,
-        lineUp: 2,
-      }
+        props: {
+          win: true,
+          futWin: false,
+          fork: false,
+          lineUp: 2,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
       assertMove(actualMove, expectedMove);
     });
 
@@ -221,10 +401,19 @@ describe('Tests of legal moves.', () => {
         y: y, // always same
         weight: 100060, // same as score
         score: 100060, // winning move has big score bonus
-        win: true,
-        preventLoss: false,
-        lineUp: 2,
-      }
+        props: {
+          win: true,
+          futWin: false,
+          fork: false,
+          lineUp: 2,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
       assertMove(actualMove, expectedMove);
     });
 
@@ -241,13 +430,22 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 100060, // same as score
-        score: 100060,
-        win: true,
-        preventLoss: false,
-        lineUp: 2,
-      }
-      assertMove(actualMove, expectedMove)
+        weight: 100070, // same as score
+        score: 100070,
+        props: {
+          win: true,
+          futWin: false,
+          fork: false,
+          lineUp: 2,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
+      assertMove(actualMove, expectedMove);
     });
 
     it('detects winning move: - horizontal line middle', () => {
@@ -265,11 +463,20 @@ describe('Tests of legal moves.', () => {
         y: y, // always same
         weight: 100100, // same as score
         score: 100100,
-        win: true,
-        preventLoss: false,
-        lineUp: 2,
-      }
-      assertMove(actualMove, expectedMove)
+        props: {
+          win: true,
+          futWin: false,
+          fork: false,
+          lineUp: 2,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
+      assertMove(actualMove, expectedMove);
     });
 
     it('detects winning move: - horizontal line bottom', () => {
@@ -287,14 +494,23 @@ describe('Tests of legal moves.', () => {
         y: y, // always same
         weight: 100060, // same as score
         score: 100060,
-        win: true,
-        preventLoss: false,
-        lineUp: 2,
-      }
-      assertMove(actualMove, expectedMove)
+        props: {
+          win: true,
+          futWin: false,
+          fork: false,
+          lineUp: 2,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
+      assertMove(actualMove, expectedMove);
     });
 
-    it('detects winning move: / cross line', () => {
+    it('detects winning move: / diagonal line', () => {
       const gameState = ref(createGameState());
       gameState.value.board.cells[0]![2] = EnCellState.O;
       gameState.value.board.cells[1]![1] = EnCellState.O;
@@ -307,16 +523,25 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 100060, // same as score
-        score: 100060,
-        win: true,
-        preventLoss: false,
-        lineUp: 2,
-      }
+        weight: 100070, // same as score
+        score: 100070,
+        props: {
+          win: true,
+          futWin: false,
+          fork: false,
+          lineUp: 2,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
       assertMove(actualMove, expectedMove);
     });
 
-    it('detects winning move: \\ cross line', () => {
+    it('detects winning move: \\ diagonal line', () => {
       const gameState = ref(createGameState());
       gameState.value.board.cells[0]![0] = EnCellState.O;
       gameState.value.board.cells[2]![2] = EnCellState.O;
@@ -331,11 +556,20 @@ describe('Tests of legal moves.', () => {
         y: y, // always same
         weight: 100100, // same as score
         score: 100100,
-        win: true,
-        preventLoss: false,
-        lineUp: 2,
-      }
-      assertMove(actualMove, expectedMove)
+        props: {
+          win: true,
+          futWin: false,
+          fork: false,
+          lineUp: 2,
+        },
+        oppProps: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
+      assertMove(actualMove, expectedMove);
     });
 
     it('detects NOT winning move: | vertical line', () => {
@@ -352,12 +586,21 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 1010, // same as score
-        score: 1010, // score higher if it prevents opponent's win
-        win: false,
-        preventLoss: true,
-        lineUp: 0,
-      }
+        weight: 10020, // same as score
+        score: 10020, // score higher if it prevents opponent's win
+        props: {
+          win: false,
+          futWin: false,
+          fork: false,
+          lineUp: 0,
+        },
+        oppProps: {
+          win: true,
+          futWin: false,
+          fork: false,
+          lineUp: 2,
+        },
+      };
       assertMove(actualMove, expectedMove);
     });
   });

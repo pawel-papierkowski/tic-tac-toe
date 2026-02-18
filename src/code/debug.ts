@@ -1,17 +1,25 @@
 import type { Ref } from 'vue';
-import type { GameState, LegalMove, DebugData } from './types.ts';
-import { EnCellState } from './types.ts';
-import { resolveLegalMoves } from './legalMoves.ts';
+import type { GameState, LegalMove, DebugCell } from '@/code/data/types.ts';
+import { EnCellState } from '@/code/data/enums.ts';
+import { resolveLegalMoves } from '@/code/legalMoves.ts';
 
 /**
  * Fills all debug data that are for empty cells.
  * Point of view depends on gameState.value.settings.debugPlayer.
  * @param gameState Reference to game state.
  */
-export function fillDebugData(gameState : Ref<GameState>) {
-  if (!gameState.value.settings.debugMode) return;
+export function fillDebugData(gameState: Ref<GameState>) {
+  if (!gameState.value.debugSettings.debugMode) return;
 
-  const who : EnCellState = whoAmI(gameState);
+  // show debug data for current player
+  gameState.value.board.debug.debugPlayer1 = gameState.value.debugSettings.debugPlayer1;
+  gameState.value.board.debug.debugPlayer2 = gameState.value.debugSettings.debugPlayer2;
+  if (gameState.value.board.currentPlayer === gameState.value.debugSettings.debugPlayer2) {
+    gameState.value.board.debug.debugPlayer1 = gameState.value.debugSettings.debugPlayer2;
+    gameState.value.board.debug.debugPlayer2 = gameState.value.debugSettings.debugPlayer1;
+  }
+
+  const who: EnCellState = whoAmI(gameState);
   const legalMoves = resolveLegalMoves(gameState, who, true);
   if (legalMoves.length === 0) return;
 
@@ -20,8 +28,8 @@ export function fillDebugData(gameState : Ref<GameState>) {
   }
 }
 
-function whoAmI(gameState : Ref<GameState>) : EnCellState {
-  const debugPlayer = gameState.value.settings.debugPlayer;
+function whoAmI(gameState: Ref<GameState>): EnCellState {
+  const debugPlayer = gameState.value.board.debug.debugPlayer1;
   return gameState.value.board.firstPlayer === debugPlayer ? EnCellState.X : EnCellState.O;
 }
 
@@ -32,11 +40,10 @@ function whoAmI(gameState : Ref<GameState>) : EnCellState {
  * @param x X coordinate of cell.
  * @param y Y coordinate of cell.
  */
-function saveDebugData(gameState : Ref<GameState>, move: LegalMove) {
-  const debugCell : DebugData = gameState.value.board.debug[move.x]![move.y]!;
+function saveDebugData(gameState: Ref<GameState>, move: LegalMove) {
+  const debugCell: DebugCell = gameState.value.board.debug.cells[move.x]![move.y]!;
   debugCell.score = move.score;
   debugCell.weight = move.weight;
-  debugCell.win = move.win;
-  debugCell.preventLoss = move.preventLoss;
-  debugCell.lineUp = move.lineUp;
+  debugCell.props = move.props;
+  debugCell.oppProps = move.oppProps;
 }
