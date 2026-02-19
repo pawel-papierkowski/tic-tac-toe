@@ -6,12 +6,14 @@ type GameFundProp = {
   title: string;
   author: string;
   version: string;
+  build: string;
 };
 
 export const gameFundProp: GameFundProp = {
   title: "TIC TAC TOE",
   author: "Paweł Papierkowski",
-  version: "0.7.0",
+  version: import.meta.env.VITE_APP_VERSION,
+  build: import.meta.env.DEV ? "DEV" : "PROD",
 }
 
 //

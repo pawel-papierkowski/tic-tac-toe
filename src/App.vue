@@ -39,7 +39,7 @@ function preloadImages() {
     </template>
   </main>
 
-  <footer>{{ gameFundProp.author }} v. {{ gameFundProp.version }}</footer>
+  <footer>{{ gameFundProp.author }} v. {{ gameFundProp.version }} {{ gameFundProp.build }}</footer>
 </template>
 
 <style scoped>

@@ -2,6 +2,7 @@
 import type { GameState } from '@/code/data/types.ts';
 import { playerTypeDescr } from '@/code/data/data.ts';
 
+const isDev = import.meta.env.DEV;
 const gameState = defineModel<GameState>({ required: true });
 
 const _props = defineProps<{
@@ -12,7 +13,7 @@ const _props = defineProps<{
 </script>
 
 <template>
-  <div class="debug-data" v-if="gameState.debugSettings.debugMode === true">
+  <div class="debug-data" v-if="isDev && gameState.debugSettings.debugMode === true">
       <div><b>X</b>: {{ x }}, <b>Y</b>: {{ y }}</div>
       <div></div>
       <div>Score: {{ gameState.board.debug.cells[x]![y]?.score }}</div>
