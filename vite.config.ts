@@ -17,6 +17,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  base: '/tic-tac-toe/', // We deploy to GitHub Pages.
   define: {
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(pkg.version),
   }

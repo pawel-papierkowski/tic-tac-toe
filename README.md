@@ -1,6 +1,7 @@
 # tic-tac-toe
 
 Very simple project showing off the very basics of Vue frontend project.
+URL: https://pawel-papierkowski.github.io/tic-tac-toe/
 
 ## Play where you can win on impossible difficulty
 Human starts first.
@@ -16,4 +17,3 @@ What to do? Likely we need to rewrite this piece of code. Ughhhh.
 ## TODO
 - these damn forks...
 - review of codebase
-- deploy on web
