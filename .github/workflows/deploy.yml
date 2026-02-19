@@ -1,52 +1,54 @@
-name: Deploy to GitHub Pages
+name: Deploy TicTacToe project to GitHub Pages
 
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+on: # When to run this action?
+  #push: # run automatically when push
+  #  branches: [ main ]
+  workflow_dispatch: # run manually
 
-permissions:
+permissions: # Minimal permissions needed for Pages deploy. Without them action will fail.
   contents: read
   pages: write
   id-token: write
 
-concurrency:
+concurrency: # How to act if someone runs two deploys at same time.
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: true # cancels previous deploy, ensuring only one runs at same time
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+jobs: # Define jobs to run. They will be executed in parallel by default unless 'needs:' is specified.
+  build: # First job to run.
+    runs-on: ubuntu-latest # uses a fresh Ubuntu VM
     steps:
-      - name: Checkout
+      - name: Checkout # clone entire repo to the VM
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node  # install Node.js + npm, cache dependencies
         uses: actions/setup-node@v4
         with:
-          node-version: lts/*
-          cache: npm
+          node-version: lts/* # Installs latest LTS Node.js
+          cache: npm          # Caches node_modules for speed
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install dependencies # Installs exact package-lock.json versions
+        run: npm ci                # (faster/more reliable than npm install).
 
-      - name: Build
+      - name: Build # Runs your Vite build: Creates ./dist/ folder with optimized static files.
         run: npm run build
 
-      - name: Setup Pages
+      - name: Setup Pages # Configures Pages environment (handles base path, etc.).
         uses: actions/configure-pages@v5
 
-      - name: Upload artifact
+      - name: Upload artifact # Packages dist/ as a secure artifact (temporary zip file) for the next job.
         uses: actions/upload-pages-artifact@v4
         with:
           path: ./dist
 
-  deploy:
-    environment:
+  deploy: # Second job to run.
+    environment: # Targets Pages environment (protection rules + publishes the final URL).
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
+    runs-on: ubuntu-latest # New VM, but only starts after build succeeds.
+    needs: build # Must wait for build job to finish.
+    # Deploys the artifact from build job to your GitHub Pages site.
+    # id: deployment lets previous steps reference its output (the live URL).
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
