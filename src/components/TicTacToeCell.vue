@@ -23,7 +23,7 @@ const cellValue = computed<EnCellState>(() => {
 });
 
 const imageLink = computed<string>(() => {
-  return '/cell_' + cellValue.value + '.svg';
+  return import.meta.env.BASE_URL + `/cell_${cellValue.value}.svg`;
 });
 
 /**

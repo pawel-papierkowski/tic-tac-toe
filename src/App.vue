@@ -15,11 +15,12 @@ const gameState = ref<GameState>(createGameState());
 
 // Preload images - should solve Firefox issue with delayed image showing.
 function preloadImages() {
+  const base = import.meta.env.BASE_URL;
   const images = ['/cell_0.svg', '/cell_1.svg', '/cell_2.svg', '/cell_3.svg'];
 
   images.forEach((src) => {
     const img = new Image();
-    img.src = src;
+    img.src = base + src;
   });
 }
 </script>
