@@ -1,4 +1,5 @@
-import { type PointsData } from './types.ts';
+import type { PointsData, MiniMaxScoring, Line3 } from './types.ts';
+import { createPointsData } from './types.ts';
 import { EnDifficulty, EnWhoFirst, EnPlayerType, EnCellState } from './enums.ts';
 
 /** Fundamental game properties. */
@@ -59,23 +60,64 @@ export const defScoringData: PointsData = {
   bonusPreventFork: 5000,
   bonusWin: 100000,
   bonusPreventLoss: 10000,
+
+  mulMiniMax: 10,
+};
+
+export const scoringMedium: PointsData = {
+  posBasic: 10,
+  posCorner: 20,
+  posCenter: 50,
+
+  bonusLineUp: 25,
+  bonusFork: 100,
+  bonusPreventFork: 50,
+  bonusWin: 500,
+  bonusPreventLoss: 400,
+
+  mulMiniMax: 1,
+};
+
+export const scoringHard: PointsData = {
+  posBasic: 10,
+  posCorner: 20,
+  posCenter: 50,
+
+  bonusLineUp: 25,
+  bonusFork: 1000,
+  bonusPreventFork: 50,
+  bonusWin: 100000,
+  bonusPreventLoss: 10000,
+
+  mulMiniMax: 10,
 };
 
 /** Weights matter only for Medium and Hard difficulties. */
 export const weightData: Record<EnDifficulty, PointsData> = {
-  [EnDifficulty.Easy]: defScoringData,
-  [EnDifficulty.Medium]: {
-    // only medium has weight different than score
-    posBasic: 10,
-    posCorner: 20,
-    posCenter: 50,
-
-    bonusLineUp: 25,
-    bonusFork: 100,
-    bonusPreventFork: 200,
-    bonusWin: 500,
-    bonusPreventLoss: 400,
-  },
-  [EnDifficulty.Hard]: defScoringData,
-  [EnDifficulty.Impossible]: defScoringData,
+  [EnDifficulty.Easy]: scoringHard,
+  [EnDifficulty.Medium]: scoringMedium,
+  [EnDifficulty.Hard]: scoringHard,
+  [EnDifficulty.Impossible]: createPointsData(),
 };
+
+/** Evaluation score for MiniMax algorithm. */
+export const miniMaxScoring: MiniMaxScoring = {
+  max:     10000,
+  win:     1000,
+  draw:    0,
+  inLine3: 100,
+  inLine2: 10,
+  inLine1: 1,
+  other:   0,
+};
+
+export const line3array: Line3[] = [
+  {x1: 0, y1: 0, x2: 0, y2: 1, x3: 0, y3: 2}, // horizontal lines
+  {x1: 1, y1: 0, x2: 1, y2: 1, x3: 1, y3: 2},
+  {x1: 2, y1: 0, x2: 2, y2: 1, x3: 2, y3: 2},
+  {x1: 0, y1: 0, x2: 1, y2: 0, x3: 2, y3: 0}, // vertical lines
+  {x1: 0, y1: 1, x2: 1, y2: 1, x3: 2, y3: 1},
+  {x1: 0, y1: 2, x2: 1, y2: 2, x3: 2, y3: 2},
+  {x1: 0, y1: 0, x2: 1, y2: 1, x3: 2, y3: 2}, // diagonal
+  {x1: 0, y1: 2, x2: 1, y2: 1, x3: 2, y3: 0}, // backward diagonal
+];

@@ -2,7 +2,7 @@ import type { Ref } from 'vue';
 import type { GameState, LegalMove } from './data/types.ts';
 import { EnDifficulty, EnWhoFirst, EnGameStatus, EnCellState, EnPlayerType } from '@/code/data/enums.ts';
 import { playerTypeDescr } from '@/code/data/data.ts';
-import { resolveLegalMoves } from '@/code/legalMoves.ts';
+import { resolveAllLegalMoves } from '@/code/legalMoves.ts';
 import { fillDebugData } from '@/code/debug.ts';
 
 /**
@@ -13,12 +13,13 @@ import { fillDebugData } from '@/code/debug.ts';
 export function moveAi(gameState: Ref<GameState>) {
   const who: EnCellState = // first player uses crosses, second player uses naughts
     gameState.value.board.firstPlayer === gameState.value.board.currentPlayer ? EnCellState.X : EnCellState.O;
-  const legalMoves = resolveLegalMoves(gameState, who, true);
-  if (legalMoves.length === 0) {
-    // no legal moves, we have tie
-    reactOnTie(gameState);
+  const legalMoves = resolveAllLegalMoves(gameState, who);
+
+  if (legalMoves.length === 0) { // no legal moves found, we have draw
+    reactOnDraw(gameState);
     return;
   }
+
   // We know there is at least one move available.
   const pickedMove: LegalMove = moveAiDifficulty(gameState, legalMoves);
   executeMove(gameState, pickedMove);
@@ -32,7 +33,7 @@ export function moveAi(gameState: Ref<GameState>) {
  * @returns Picked legal move.
  */
 export function moveAiDifficulty(gameState: Ref<GameState>, legalMoves: LegalMove[]): LegalMove {
-  // No point in picking move if there is only one move available...
+  // No point in thinking over move if there is only one move available...
   if (legalMoves.length === 1) return legalMoves[0]!;
 
   switch (gameState.value.settings.difficulty) {
@@ -158,13 +159,9 @@ export function executeMove(gameState: Ref<GameState>, move: LegalMove) {
     return;
   }
 
-  // Check if tie state was achieved.
-  const who: EnCellState = // first player uses crosses, second player uses naughts
-    gameState.value.board.firstPlayer === gameState.value.board.currentPlayer ? EnCellState.X : EnCellState.O;
-  const legalMoves = resolveLegalMoves(gameState, who, false);
-  if (legalMoves.length === 0) {
-    // no legal moves, we have tie
-    reactOnTie(gameState);
+  // Check if draw state was achieved.
+  if (checkDrawState(gameState)) {
+    reactOnDraw(gameState);
     return;
   }
 
@@ -217,10 +214,10 @@ function reactOnWin(gameState: Ref<GameState>) {
 }
 
 /**
- * Set up game state for tie.
+ * Set up game state for draw.
  * @param gameState Reference to game state.
  */
-function reactOnTie(gameState: Ref<GameState>) {
+function reactOnDraw(gameState: Ref<GameState>) {
   gameState.value.board.status = EnGameStatus.Tie;
   gameState.value.statistics.ties++;
   gameState.value.statistics.tiesInRow++;
@@ -332,4 +329,20 @@ function checkBottomRightCorner(gameState: Ref<GameState>): boolean {
     return true; // ??X
   }
   return false;
+}
+
+/**
+ * Check if we have draw. Draw is defined as "no legal move possible".
+ * @param gameState Reference to game state.
+ * @returns True if we have draw, otherwise false.
+ */
+export function checkDrawState(gameState: Ref<GameState>): boolean {
+  for (let x = 0; x < 3; x++) {
+    for (let y = 0; y < 3; y++) {
+      if (gameState.value.board.cells[x]![y] != EnCellState.Empty) continue;
+      // Any empty cell is legal move. That also means there is no draw.
+      return false;
+    }
+  }
+  return true;
 }

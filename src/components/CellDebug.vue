@@ -23,8 +23,8 @@ const _props = defineProps<{
       <div><b>{{ playerTypeDescr[gameState.board.debug.debugPlayer2] }}</b></div>
       <div>Win: {{ gameState.board.debug.cells[x]![y]?.props.win }}</div>
       <div>Win: {{ gameState.board.debug.cells[x]![y]?.oppProps.win }}</div>
-      <div>FutWin: {{ gameState.board.debug.cells[x]![y]?.props.futWin }}</div>
-      <div>FutWin: {{ gameState.board.debug.cells[x]![y]?.oppProps.futWin }}</div>
+      <div>MiniMax: {{ gameState.board.debug.cells[x]![y]?.props.miniMax }}</div>
+      <div>MiniMax: {{ gameState.board.debug.cells[x]![y]?.oppProps.miniMax }}</div>
       <div>Fork: {{ gameState.board.debug.cells[x]![y]?.props.fork }}</div>
       <div>Fork: {{ gameState.board.debug.cells[x]![y]?.oppProps.fork }}</div>
       <div>LineUp: {{ gameState.board.debug.cells[x]![y]?.props.lineUp }}</div>
@@ -37,14 +37,14 @@ const _props = defineProps<{
   display: grid;
   grid-template-columns: 1fr 1fr;
   padding: 5px;
-  font-size: 1rem;
+  font-size: 0.85rem;
 }
 
 /* Smaller on mobile */
 @media (max-width: 768px) {
   .debug-data {
     padding: 2px;
-    font-size: 0.6rem;
+    font-size: 0.5rem;
   }
 }
 </style>

@@ -198,6 +198,16 @@ export function createGameState(): GameState {
 // Types for tic-tac-toe engine.
 // /////////////////////////////
 
+export type MiniMaxScoring = {
+  max: number; // Max.
+  win: number; // Points for winning state for board.
+  draw: number; // Points for draw.
+  inLine3: number; // Points for each 3-in-a-line.
+  inLine2: number; // Points for each 2-in-a-line (and one empty cell).
+  inLine1: number; // Points for each 2-in-a-line (and two empty cells).
+  other: number; // Points for all other moves.
+};
+
 export type PointsData = {
   posBasic: number; // Points for basic move.
   posCorner: number; // Points for move in corner.
@@ -208,6 +218,8 @@ export type PointsData = {
   bonusPreventFork: number; // Bonus for move that prevents fork game.
   bonusWin: number; // Bonus for move that wins the game.
   bonusPreventLoss: number; // Bonus for move that prevents losing game.
+
+  mulMiniMax: number; // Weight for miniMax score.
 };
 
 export function createPointsData(): PointsData {
@@ -221,22 +233,24 @@ export function createPointsData(): PointsData {
     bonusPreventFork: 0,
     bonusWin: 0,
     bonusPreventLoss: 0,
+
+    mulMiniMax: 1,
   };
 }
 
 export type MoveProps = {
   win: boolean; // If true, this move is winning move.
-  futWin: boolean; // If true, this move leads to winning move.
   lineUp: number; // Amout of other your marks that are lined up with this move.
   fork: boolean; // If true, this move will produce fork for you.
+  miniMax: number; // MiniMax score. Present only for AI props.
 };
 
 function createMoveProps(): MoveProps {
   return {
     win: false,
-    futWin: false,
     lineUp: 0,
     fork: false,
+    miniMax: 0,
   };
 }
 
@@ -261,6 +275,15 @@ export function createLegalMove(who: EnCellState, x: number, y: number): LegalMo
     oppProps: createMoveProps(),
   };
 }
+
+export type Line3 = {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  x3: number;
+  y3: number;
+};
 
 /////////
 // Other.

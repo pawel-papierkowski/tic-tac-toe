@@ -2,51 +2,20 @@ import { describe, it } from 'vitest';
 import { ref } from 'vue';
 import { assertMove } from '../utils/assertions.ts';
 
-import { fillLegalMove } from '../../code/legalMoves.ts';
 import { createGameState, type LegalMove } from '../../code/data/types.ts';
 import { EnCellState } from '../../code/data/enums.ts';
+import { resolveLegalMove } from '../../code/legalMoves.ts';
 
 describe('Tests of legal moves.', () => {
   describe('Scoring', () => {
-    it('creates move without score calculation', () => {
-      const gameState = ref(createGameState());
-      // note game state is untouched (all cells are empty)
-      const who = EnCellState.O;
-      const x = 0;
-      const y = 0;
-
-      const actualMove = fillLegalMove(gameState, who, x, y, false);
-      // Default values when calcScoring is false.
-      const expectedMove: LegalMove = {
-        who: who,
-        x: x,
-        y: y, // always same
-        weight: 0,
-        score: 0,
-        props: {
-          win: false,
-          futWin: false,
-          fork: false,
-          lineUp: 0,
-        },
-        oppProps: {
-          win: false,
-          futWin: false,
-          fork: false,
-          lineUp: 0,
-        },
-      };
-      assertMove(actualMove, expectedMove);
-    });
-
-    it('creates move with score calculation', () => {
+    it('calculates correct score for edge position', () => {
       const gameState = ref(createGameState());
       // note game state is untouched (all cells are empty)
       const who = EnCellState.O;
       const x = 1;
       const y = 0;
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -55,15 +24,15 @@ describe('Tests of legal moves.', () => {
         score: 10, // basic score
         props: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
         oppProps: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -76,7 +45,7 @@ describe('Tests of legal moves.', () => {
       const x = 2;
       const y = 2;
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -85,15 +54,15 @@ describe('Tests of legal moves.', () => {
         score: 20, // score for corner cell
         props: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
         oppProps: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -106,7 +75,7 @@ describe('Tests of legal moves.', () => {
       const x = 1;
       const y = 1;
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -115,15 +84,15 @@ describe('Tests of legal moves.', () => {
         score: 50, // score for center cell
         props: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
         oppProps: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -138,7 +107,7 @@ describe('Tests of legal moves.', () => {
       const x = 0;
       const y = 2;
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -147,15 +116,15 @@ describe('Tests of legal moves.', () => {
         score: 45, // lineup provides bonus to score
         props: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 1,
+          miniMax: 0,
         },
         oppProps: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -169,7 +138,7 @@ describe('Tests of legal moves.', () => {
       const x = 0;
       const y = 2;
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -178,15 +147,15 @@ describe('Tests of legal moves.', () => {
         score: 20, // no lineup bonus
         props: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
         oppProps: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -202,7 +171,7 @@ describe('Tests of legal moves.', () => {
       const x = 0;
       const y = 0;
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -211,15 +180,15 @@ describe('Tests of legal moves.', () => {
         score: 1070, // lineup provides bonus to score
         props: {
           win: false,
-          futWin: false,
           fork: true,
           lineUp: 2,
+          miniMax: 0,
         },
         oppProps: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -234,7 +203,7 @@ describe('Tests of legal moves.', () => {
       const x = 0;
       const y = 0;
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -243,15 +212,15 @@ describe('Tests of legal moves.', () => {
         score: 1095, // lineup provides bonus to score
         props: {
           win: false,
-          futWin: false,
           fork: true,
           lineUp: 3,
+          miniMax: 0,
         },
         oppProps: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -267,7 +236,7 @@ describe('Tests of legal moves.', () => {
       const x = 2;
       const y = 2; // this move creates fork for board defined above
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -276,51 +245,19 @@ describe('Tests of legal moves.', () => {
         score: 11070, // fork provides large bonus to score
         props: {
           win: false,
-          futWin: false,
           fork: true,
           lineUp: 2,
+          miniMax: 0,
         },
         oppProps: {
           win: true,
-          futWin: false,
           fork: false,
           lineUp: 2,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
     });
-/*
-    it('detects future fork on realistic board', () => {
-      const gameState = ref(createGameState());
-      gameState.value.board.cells[0]![0] = EnCellState.X; // X??
-      gameState.value.board.cells[1]![1] = EnCellState.O; // ?O?
-                                                          // ???
-      const who = EnCellState.X;
-      const x = 2;
-      const y = 2; // this move creates future fork for board defined above
-
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
-      const expectedMove: LegalMove = {
-        who: who,
-        x: x,
-        y: y, // always same
-        weight: 20, // same as score
-        score: 20, // fork provides large bonus to score
-        props: {
-          win: false,
-          futWin: false,
-          fork: true,
-          lineUp: 0,
-        },
-        oppProps: {
-          win: false,
-          futWin: false,
-          fork: false,
-          lineUp: 0,
-        },
-      };
-      assertMove(actualMove, expectedMove);
-    });*/
   });
 
   describe('Win situations', () => {
@@ -332,7 +269,7 @@ describe('Tests of legal moves.', () => {
       const x = 0;
       const y = 2;
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -341,15 +278,15 @@ describe('Tests of legal moves.', () => {
         score: 100070, // winning move has big score bonus
         props: {
           win: true,
-          futWin: false,
           fork: false,
           lineUp: 2,
+          miniMax: 0,
         },
         oppProps: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -363,7 +300,7 @@ describe('Tests of legal moves.', () => {
       const x = 1;
       const y = 0;
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -372,15 +309,15 @@ describe('Tests of legal moves.', () => {
         score: 100060, // winning move has big score bonus
         props: {
           win: true,
-          futWin: false,
           fork: false,
           lineUp: 2,
+          miniMax: 0,
         },
         oppProps: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -394,7 +331,7 @@ describe('Tests of legal moves.', () => {
       const x = 2;
       const y = 1;
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -403,15 +340,15 @@ describe('Tests of legal moves.', () => {
         score: 100060, // winning move has big score bonus
         props: {
           win: true,
-          futWin: false,
           fork: false,
           lineUp: 2,
+          miniMax: 0,
         },
         oppProps: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -425,7 +362,7 @@ describe('Tests of legal moves.', () => {
       const x = 0;
       const y = 0;
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -434,15 +371,15 @@ describe('Tests of legal moves.', () => {
         score: 100070,
         props: {
           win: true,
-          futWin: false,
           fork: false,
           lineUp: 2,
+          miniMax: 0,
         },
         oppProps: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -456,7 +393,7 @@ describe('Tests of legal moves.', () => {
       const x = 1;
       const y = 1;
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -465,15 +402,15 @@ describe('Tests of legal moves.', () => {
         score: 100100,
         props: {
           win: true,
-          futWin: false,
           fork: false,
           lineUp: 2,
+          miniMax: 0,
         },
         oppProps: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -487,7 +424,7 @@ describe('Tests of legal moves.', () => {
       const x = 1;
       const y = 2;
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -496,15 +433,15 @@ describe('Tests of legal moves.', () => {
         score: 100060,
         props: {
           win: true,
-          futWin: false,
           fork: false,
           lineUp: 2,
+          miniMax: 0,
         },
         oppProps: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -518,7 +455,7 @@ describe('Tests of legal moves.', () => {
       const x = 2;
       const y = 0;
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -527,15 +464,15 @@ describe('Tests of legal moves.', () => {
         score: 100070,
         props: {
           win: true,
-          futWin: false,
           fork: false,
           lineUp: 2,
+          miniMax: 0,
         },
         oppProps: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -549,7 +486,7 @@ describe('Tests of legal moves.', () => {
       const x = 1;
       const y = 1;
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -558,15 +495,15 @@ describe('Tests of legal moves.', () => {
         score: 100100,
         props: {
           win: true,
-          futWin: false,
           fork: false,
           lineUp: 2,
+          miniMax: 0,
         },
         oppProps: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -581,7 +518,7 @@ describe('Tests of legal moves.', () => {
       const x = 0;
       const y = 2;
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -590,15 +527,15 @@ describe('Tests of legal moves.', () => {
         score: 10020, // score higher if it prevents opponent's win
         props: {
           win: false,
-          futWin: false,
           fork: false,
           lineUp: 0,
+          miniMax: 0,
         },
         oppProps: {
           win: true,
-          futWin: false,
           fork: false,
           lineUp: 2,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);

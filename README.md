@@ -14,6 +14,7 @@ ISSUE: you need to make move in different cell than where opponent's fork could 
 
 What to do? Likely we need to rewrite this piece of code. Ughhhh.
 
+
 ## TODO
-- these damn forks...
+- Implement minimax algorithm.
 - review of codebase

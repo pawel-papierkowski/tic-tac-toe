@@ -54,7 +54,7 @@ function resolveCoords(startStrike: boolean, strike: StrikeData): { centerX: num
   // Example: cell with x=1 and y=2 will have id = '1x2'.
   const elementId: string = `${x}x${y}`;
   const element = document.getElementById(elementId);
-  if (element == null) {
+  if (element === null) {
     // can happen during Vue's hot reload
     console.warn(`Failed to resolve cell ${elementId}!`);
     return null;

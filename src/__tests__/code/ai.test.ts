@@ -2,10 +2,12 @@ import { describe, it, expect } from 'vitest';
 import { ref } from 'vue';
 import { assertMove, assertWinState } from '../utils/assertions.ts';
 
-import { resolveLegalMoves, fillLegalMove } from '../../code/legalMoves.ts';
-import { checkWinState, moveAiDifficulty } from '../../code/ai.ts';
 import { createGameState, StrikeData, type LegalMove } from '../../code/data/types.ts';
 import { EnDifficulty, EnCellState } from '../../code/data/enums.ts';
+import { resolveAllLegalMoves, resolveLegalMove } from '../../code/legalMoves.ts';
+import { checkWinState, moveAiDifficulty } from '../../code/ai.ts';
+
+import { createGameStateForAI } from '../utils/prepare.ts';
 
 describe('Tests of AI.', () => {
   describe('Win states', () => {
@@ -148,7 +150,7 @@ describe('Tests of AI.', () => {
       const x = 0;
       const y = 2;
 
-      const actualMove = fillLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, true);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
@@ -157,24 +159,23 @@ describe('Tests of AI.', () => {
         score: 100070, // winning move has big score bonus
         props: {
           win: true,
-          futWin: false,
-          fork: false,
           lineUp: 2,
+          fork: false,
+          miniMax: 0,
         },
         oppProps: {
           win: false,
-          futWin: false,
-          fork: false,
           lineUp: 0,
+          fork: false,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
     });
 
     it('impossible always picks highest score', () => {
-      const gameState = ref(createGameState());
-      gameState.value.settings.difficulty = EnDifficulty.Impossible;
-      const legalMoves = resolveLegalMoves(gameState, EnCellState.X, true);
+      const gameState = ref(createGameStateForAI());
+      const legalMoves = resolveAllLegalMoves(gameState, EnCellState.X, true);
       // Empty board and AI starts game, so all cells are available as moves.
       expect(legalMoves.length, `Mismatch of amount of available moves.`).toBe(9);
 
@@ -189,15 +190,15 @@ describe('Tests of AI.', () => {
         score: 50,
         props: {
           win: false,
-          futWin: false,
-          fork: false,
           lineUp: 0,
+          fork: false,
+          miniMax: 0,
         },
         oppProps: {
           win: false,
-          futWin: false,
-          fork: false,
           lineUp: 0,
+          fork: false,
+          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
