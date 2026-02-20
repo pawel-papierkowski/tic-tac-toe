@@ -112,7 +112,7 @@ function pickWeighted(legalMoves: LegalMove[]): number {
 }
 
 /**
- * Pick move with highest score. If there are multiple moves with same score, pick one randomly.
+ * Pick move with highest score. If there are multiple moves with same score, pick one of these randomly.
  * @param legalMoves List of available legal moves. There are always at least two moves.
  * @returns Index of picked legal move.
  */
@@ -129,7 +129,7 @@ function pickHighestScore(legalMoves: LegalMove[]): LegalMove {
     }
   }
   console.log(`Found ${bestMoves.length} best move(s) with score ${bestScore}.`);
-  if (bestMoves.length === 1) return bestMoves[0]!;
+  if (bestMoves.length === 1) return bestMoves[0]!; // found only one move with best score
   // pick one of best moves if more than one
   const index = Math.floor(Math.random() * bestMoves.length);
   return bestMoves[index]!;
@@ -256,21 +256,24 @@ function checkUpLeftCorner(gameState: Ref<GameState>): boolean {
     // horizontal line
     gameState.value.board.strike.end.x = 2; // XXX
     gameState.value.board.strike.end.y = 0; // ???
-    return true; // ???
+    //                                         ???
+    return true;
   }
 
   if (gameState.value.board.cells[0]![1] === cellState && gameState.value.board.cells[0]![2] === cellState) {
     // vertical line
     gameState.value.board.strike.end.x = 0; // X??
     gameState.value.board.strike.end.y = 2; // X??
-    return true; // X??
+    //                                         X??
+    return true;
   }
 
   if (gameState.value.board.cells[1]![1] === cellState && gameState.value.board.cells[2]![2] === cellState) {
     // cross
     gameState.value.board.strike.end.x = 2; // X??
     gameState.value.board.strike.end.y = 2; // ?X?
-    return true; // ??X
+    //                                         ??X
+    return true;
   }
   return false;
 }
@@ -285,7 +288,8 @@ function checkCenter(gameState: Ref<GameState>): boolean {
     gameState.value.board.strike.start.y = 0;
     gameState.value.board.strike.end.x = 1; // ?X?
     gameState.value.board.strike.end.y = 2; // ?X?
-    return true; // ?X?
+    //                                         ?X?
+    return true;
   }
 
   if (gameState.value.board.cells[0]![1] === cellState && gameState.value.board.cells[2]![1] === cellState) {
@@ -294,7 +298,8 @@ function checkCenter(gameState: Ref<GameState>): boolean {
     gameState.value.board.strike.start.y = 1;
     gameState.value.board.strike.end.x = 2; // ???
     gameState.value.board.strike.end.y = 1; // XXX
-    return true; // ???
+    //                                         ???
+    return true;
   }
 
   if (gameState.value.board.cells[2]![0] === cellState && gameState.value.board.cells[0]![2] === cellState) {
@@ -303,7 +308,8 @@ function checkCenter(gameState: Ref<GameState>): boolean {
     gameState.value.board.strike.start.y = 0;
     gameState.value.board.strike.end.x = 0; // ??X
     gameState.value.board.strike.end.y = 2; // ?X?
-    return true; // X??
+    //                                         X??
+    return true;
   }
 
   return false;
@@ -319,20 +325,22 @@ function checkBottomRightCorner(gameState: Ref<GameState>): boolean {
     // horizontal line
     gameState.value.board.strike.end.x = 0; // ???
     gameState.value.board.strike.end.y = 2; // ???
-    return true; // XXX
+    //                                         XXX
+    return true;
   }
 
   if (gameState.value.board.cells[2]![1] === cellState && gameState.value.board.cells[2]![0] === cellState) {
     // vertical line
     gameState.value.board.strike.end.x = 2; // ??X
     gameState.value.board.strike.end.y = 0; // ??X
-    return true; // ??X
+    //                                         ??X
+    return true;
   }
   return false;
 }
 
 /**
- * Check if we have draw. Draw is defined as "no legal move possible".
+ * Check if we have draw. Draw is defined as "no legal move possible and there is no winning state on board".
  * @param gameState Reference to game state.
  * @returns True if we have draw, otherwise false.
  */

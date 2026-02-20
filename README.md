@@ -1,20 +1,16 @@
-# tic-tac-toe
+# Tic-Tac-Toe
 
-Very simple project showing off the very basics of Vue frontend project.
-URL: https://pawel-papierkowski.github.io/tic-tac-toe/
+Very simple project showing off the very basics of Vue frontend project. Basically step up from Hello World.
+URL of deployed app: https://pawel-papierkowski.github.io/tic-tac-toe/
 
-## Play where you can win on impossible difficulty
-Human starts first.
-X: 0,0
-O: 1,1
-X: 2,2 (O can still recover if it puts on sides, not corners, since it will force X to put )
+This is fully functional Tic-Tac-Toe game, including AI difficulty for perfect play.
 
-Reason: lack of detection of fork for opponent?
-ISSUE: you need to make move in different cell than where opponent's fork could happen.
+## Used
 
-What to do? Likely we need to rewrite this piece of code. Ughhhh.
-
+Node.js: 24.13.0
+Vue.js: 3.5.27
 
 ## TODO
-- Implement minimax algorithm.
-- review of codebase
+- Finish testing of minimax algorithm.
+  Looks like AI sometimes is not making correct moves on Impossible difficulty when human starts first?
+- Review of codebase.

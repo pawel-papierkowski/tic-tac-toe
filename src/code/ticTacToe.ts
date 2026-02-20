@@ -2,6 +2,7 @@ import { type Ref, nextTick } from 'vue';
 import type { GameState } from '@/code/data/types.ts';
 import { createGameStatistics, createGameBoard, createLegalMove } from '@/code/data/types.ts';
 import { EnWhoFirst, EnGameStatus, EnCellState, EnPlayerType } from '@/code/data/enums.ts';
+import { gameConfig } from '@/code/data/data.ts';
 import { executeMove, moveAi } from '@/code/ai.ts';
 import { fillDebugData } from '@/code/debug.ts';
 
@@ -84,7 +85,7 @@ export async function humanMove(gameState: Ref<GameState>, cellValue: EnCellStat
   await nextTick(); // Wait for Vue to update the DOM.
 
   if (gameState.value.board.currentPlayer === EnPlayerType.AI) {
-    await new Promise((resolve) => setTimeout(resolve, 700)); // Delay for visual effect...
+    await new Promise((resolve) => setTimeout(resolve, gameConfig.aiWait)); // Delay for visual effect...
     moveAi(gameState); // THEN execute AI move.
     await nextTick(); // Wait for Vue to update the DOM.
   }

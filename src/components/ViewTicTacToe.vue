@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, nextTick } from 'vue';
 import { useWindowSize } from '@vueuse/core'; // refDebounced
+
 import { type GameState } from '@/code/data/types.ts';
 import { EnGameStatus, EnPlayerType } from '@/code/data/enums.ts';
+import { gameConfig } from '@/code/data/data.ts';
 import { changeScreen } from '@/code/common.ts';
 import { prepareNextRound } from '@/code/ticTacToe.ts';
 import { calcStrikeLineStyle } from '@/code/lineStrike.ts';
 import { moveAi } from '@/code/ai.ts';
 import { fillDebugData } from '@/code/debug.ts';
+
 import SidePanel from '@/components/SidePanel.vue';
 import GameStatus from '@/components/GameStatus.vue';
 import TicTacToeCell from '@/components/TicTacToeCell.vue';
@@ -51,9 +54,13 @@ function canStartNextRound(): boolean {
  */
 async function nextRound() {
   prepareNextRound(gameState);
+
+  await nextTick(); // Wait for Vue to update the DOM.
+
   if (gameState.value.board.firstPlayer == EnPlayerType.AI) {
-    await new Promise((resolve) => setTimeout(resolve, 700)); // Delay for visual effect...
+    await new Promise((resolve) => setTimeout(resolve, gameConfig.aiWait)); // Delay for visual effect...
     moveAi(gameState); // THEN execute AI move.
+    await nextTick(); // Wait for Vue to update the DOM.
   } else {
     fillDebugData(gameState);
   }

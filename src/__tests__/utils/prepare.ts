@@ -10,3 +10,12 @@ export function createGameStateForAI(): GameState {
   gameState.board.currentPlayer = EnPlayerType.AI;
   return gameState;
 }
+
+export function createGameStateForHuman(): GameState {
+  const gameState = createGameState();
+  gameState.settings.whoFirst = EnWhoFirst.Human;
+  gameState.settings.difficulty = EnDifficulty.Impossible;
+  gameState.board.firstPlayer = EnPlayerType.Human;
+  gameState.board.currentPlayer = EnPlayerType.Human;
+  return gameState;
+}

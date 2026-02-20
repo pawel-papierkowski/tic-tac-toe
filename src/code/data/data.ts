@@ -2,7 +2,7 @@ import type { PointsData, MiniMaxScoring, Line3 } from './types.ts';
 import { createPointsData } from './types.ts';
 import { EnDifficulty, EnWhoFirst, EnPlayerType, EnCellState } from './enums.ts';
 
-/** Fundamental game properties. */
+/** Fundamental game properties. More or less constant. */
 type GameFundProp = {
   title: string;
   author: string;
@@ -13,8 +13,19 @@ type GameFundProp = {
 export const gameFundProp: GameFundProp = {
   title: "TIC TAC TOE",
   author: "Paweł Papierkowski",
-  version: import.meta.env.VITE_APP_VERSION,
+  version: import.meta.env.VITE_APP_VERSION, // from package.json
   build: import.meta.env.DEV ? "DEV" : "PROD",
+}
+
+/** General configuration of game. */
+type GameConfig = {
+  aiWait: number; // how long AI is idling before making move in milliseconds
+  maxDepth: number; // for miniMax algo
+};
+
+export const gameConfig: GameConfig = {
+  aiWait: 700, // 700
+  maxDepth: 3,
 }
 
 //

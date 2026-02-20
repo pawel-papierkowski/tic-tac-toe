@@ -1,7 +1,7 @@
 import type { Ref } from 'vue';
 import type { GameState, LegalMove, DebugCell } from '@/code/data/types.ts';
 import { EnCellState } from '@/code/data/enums.ts';
-import { resolveLegalMoves } from '@/code/legalMoves.ts';
+import { resolveAllLegalMoves } from '@/code/legalMoves.ts';
 
 /**
  * Fills all debug data that are for empty cells.
@@ -20,7 +20,7 @@ export function fillDebugData(gameState: Ref<GameState>) {
   }
 
   const who: EnCellState = whoAmI(gameState);
-  const legalMoves = resolveLegalMoves(gameState, who, true);
+  const legalMoves = resolveAllLegalMoves(gameState, who);
   if (legalMoves.length === 0) return;
 
   for (const legalMove of legalMoves) {
@@ -44,6 +44,7 @@ function saveDebugData(gameState: Ref<GameState>, move: LegalMove) {
   const debugCell: DebugCell = gameState.value.board.debug.cells[move.x]![move.y]!;
   debugCell.score = move.score;
   debugCell.weight = move.weight;
+  debugCell.miniMax = move.miniMax;
   debugCell.props = move.props;
   debugCell.oppProps = move.oppProps;
 }

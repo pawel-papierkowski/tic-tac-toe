@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { nextTick } from 'vue';
+
 import { type GameState } from '@/code/data/types.ts';
 import { EnPlayerType, EnWhoFirst } from '@/code/data/enums.ts';
+import { difficultyDescr, whoFirstDescr, gameConfig } from '@/code/data/data.ts';
 import { changeScreen } from '@/code/common.ts';
 import { prepareNewGame } from '@/code/ticTacToe.ts';
 import { moveAi } from '@/code/ai.ts';
 import { fillDebugData } from '@/code/debug.ts';
-import { difficultyDescr, whoFirstDescr } from '@/code/data/data.ts';
 
 const gameState = defineModel<GameState>({ required: true });
 
@@ -13,9 +15,13 @@ async function startGame() {
   prepareNewGame(gameState);
   changeScreen(gameState, 'game');
   fillDebugData(gameState);
+
+  await nextTick(); // Wait for Vue to update the DOM.
+
   if (gameState.value.board.firstPlayer === EnPlayerType.AI) {
-    await new Promise((resolve) => setTimeout(resolve, 700)); // Delay for visual effect...
+    await new Promise((resolve) => setTimeout(resolve, gameConfig.aiWait)); // Delay for visual effect...
     moveAi(gameState); // THEN execute AI move.
+    await nextTick(); // Wait for Vue to update the DOM.
   }
 }
 

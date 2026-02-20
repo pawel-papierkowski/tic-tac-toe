@@ -14,57 +14,78 @@
  * more or less likely.
  * For impossible difficulty, minimax score is THE score.
  */
-import type { Ref } from 'vue';
-import type { GameState, Line3 } from '@/code/data/types.ts';
+import type { Line3, MiniMaxResult } from '@/code/data/types.ts';
+import { createMiniMaxResult } from '@/code/data/types.ts';
 import { EnCellState } from '@/code/data/enums.ts';
 import { miniMaxScoring, line3array } from '@/code/data/data.ts';
 
 /**
  * Resolve minimax score. Should be called only when current player is AI.
- * @param gameState Reference to game state.
+ * Note move must be valid.
+ * @param board Board state for this move.
  * @param who Who is making move? Crosses or naughts?
- * @returns MiniMax score.
+ * @param maxDepth Maximum depth to go.
+ * @returns MiniMax result.
  */
-export function resolveMiniMax(gameState: Ref<GameState>, who: EnCellState): number {
-  // depth of two is enough to detect fork attempts
-  return recursiveMiniMax(who, true, 2, gameState.value.board.cells);
+export function resolveMiniMax(board: EnCellState[][], who: EnCellState, maxDepth: number): MiniMaxResult {
+  // Starting data for beginning of recursive chain.
+  const miniMaxResult = recursiveMiniMax(who, true, 0, maxDepth, board, -1, -1);
+  console.log("Move: ", miniMaxResult);
+  return miniMaxResult;
 }
 
 /**
  * Calculates miniMax score recursively.
  * @param who Who is making move? Crosses or naughts?
  * @param isAi If true, this is AI (so maximizing). Otherwise it is human player (so minimizing).
+ * @param currDepth Current depth. Starts at 0 and increments for every recursive call.
  * @param maxDepth Maximum depth to go.
- * @param board Board state for this move. Must be full copy.
- * @returns Score.
+ * @param board Board state for this move.
+ * @param x X coordinate of cell.
+ * @param y Y coordinate of cell.
+ * @returns MiniMax result.
  */
-function recursiveMiniMax(who: EnCellState, isAi : boolean, maxDepth: number, board: EnCellState[][]) : number {
-  if (checkWin(who, board)) return isAi ? miniMaxScoring.win : -miniMaxScoring.win;
-  if (checkDraw(board)) return miniMaxScoring.draw;
-
+function recursiveMiniMax(who: EnCellState, isAi : boolean, currDepth: number, maxDepth: number, board: EnCellState[][], currX: number, currY: number) : MiniMaxResult {
   const otherWho = who === EnCellState.X ? EnCellState.O : EnCellState.X;
-  if (maxDepth === 0) { // hit max depth
+  if (checkWin(who, board)) return {score: isAi ? miniMaxScoring.win : -miniMaxScoring.win, depth: currDepth, x: currX, y: currY};
+  if (checkWin(otherWho, board)) return {score: isAi ? -miniMaxScoring.win : miniMaxScoring.win, depth: currDepth, x: currX, y: currY};
+  if (checkDraw(board)) return {score: miniMaxScoring.draw, depth: currDepth, x: currX, y: currY};
+
+  if (currDepth === maxDepth) { // hit max depth
     const whoAi = isAi ? who : otherWho; // we need to know who is max and who is min
     const whoHuman = isAi ? otherWho : who;
-    return evaluate(whoAi, whoHuman, board);
+    const score = evaluate(whoAi, whoHuman, board);
+    return {score: score, depth: currDepth, x: currX, y: currY};
   }
 
-  let bestScore = isAi ? -miniMaxScoring.max : miniMaxScoring.max;
-  for (let x=0; x<3; x++) { // columns
-    for (let y=0; y<3; y++) { // rows
-      if (board[x]![y] !== EnCellState.Empty) continue; // cannot make move here
-      board[x]![y] = who; // Make move as current player.
+  let bestResult = createMiniMaxResult();
+  bestResult.depth = currDepth;
+  bestResult.score = isAi ? -miniMaxScoring.max : miniMaxScoring.max;
+  for (let nextX=0; nextX<3; nextX++) { // columns
+    for (let nextY=0; nextY<3; nextY++) { // rows
+      if (board[nextX]![nextY] !== EnCellState.Empty) continue; // cannot make move here
+      board[nextX]![nextY] = who; // Make move as CURRENT player.
 
-      // Evaluate next move from point of view of other player.
-      const score = recursiveMiniMax(otherWho, !isAi, maxDepth-1, board);
-
-      board[x]![y] = EnCellState.Empty; // Unmake move.
       // Make sure to pick best score.
-      if (isAi) bestScore = score > bestScore ? score : bestScore;
-      else bestScore = score < bestScore ? score : bestScore;
+      if (isAi) {
+        // Evaluate next move from point of view of human player.
+        const result = recursiveMiniMax(otherWho, false, currDepth+1, maxDepth, board, nextX, nextY);
+        if (result.score > bestResult.score) bestResult = result;
+        else if (result.score === bestResult.score) {
+          if (result.depth <= bestResult.depth) bestResult = result;
+        }
+      } else {
+        // Evaluate next move from point of view of AI player.
+        const result = recursiveMiniMax(who, true, currDepth+1, maxDepth, board, nextX, nextY);
+        if (result.score < bestResult.score) bestResult = result;
+        else if (result.score === bestResult.score) {
+          if (result.depth <= bestResult.depth) bestResult = result;
+        }
+      }
+      board[nextX]![nextY] = EnCellState.Empty; // Unmake move.
     }
   }
-  return bestScore;
+  return bestResult;
 }
 
 /**
@@ -96,7 +117,7 @@ function checkDraw(board: EnCellState[][]) : boolean {
       if (board[x]![y] === EnCellState.Empty) return false; // at least one empty cell
     }
   }
-  return true;
+  return true; // entire board is filled, no move possible
 }
 
 /**
@@ -154,4 +175,3 @@ function evaluateLine(whoAi: EnCellState, whoHuman: EnCellState, board: EnCellSt
   }
   return score;
 }
-

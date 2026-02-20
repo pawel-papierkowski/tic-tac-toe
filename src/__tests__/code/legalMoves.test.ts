@@ -15,24 +15,23 @@ describe('Tests of legal moves.', () => {
       const x = 1;
       const y = 0;
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
         weight: 10, // same as score
         score: 10, // basic score
+        miniMax: 0,
         props: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
         oppProps: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -45,24 +44,23 @@ describe('Tests of legal moves.', () => {
       const x = 2;
       const y = 2;
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
         weight: 20, // same as score
         score: 20, // score for corner cell
+        miniMax: 0,
         props: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
         oppProps: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -75,24 +73,23 @@ describe('Tests of legal moves.', () => {
       const x = 1;
       const y = 1;
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
         weight: 50, // same as score
         score: 50, // score for center cell
+        miniMax: 0,
         props: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
         oppProps: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -107,24 +104,23 @@ describe('Tests of legal moves.', () => {
       const x = 0;
       const y = 2;
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
         weight: 45, // same as score
         score: 45, // lineup provides bonus to score
+        miniMax: 0,
         props: {
           win: false,
           fork: false,
           lineUp: 1,
-          miniMax: 0,
         },
         oppProps: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -138,24 +134,23 @@ describe('Tests of legal moves.', () => {
       const x = 0;
       const y = 2;
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
         weight: 20, // same as score
         score: 20, // no lineup bonus
+        miniMax: 0,
         props: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
         oppProps: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -171,24 +166,23 @@ describe('Tests of legal moves.', () => {
       const x = 0;
       const y = 0;
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
         weight: 1070, // same as score
         score: 1070, // lineup provides bonus to score
+        miniMax: 0,
         props: {
           win: false,
           fork: true,
           lineUp: 2,
-          miniMax: 0,
         },
         oppProps: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -203,24 +197,23 @@ describe('Tests of legal moves.', () => {
       const x = 0;
       const y = 0;
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
         weight: 1095, // same as score
         score: 1095, // lineup provides bonus to score
+        miniMax: 0,
         props: {
           win: false,
           fork: true,
           lineUp: 3,
-          miniMax: 0,
         },
         oppProps: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -236,24 +229,23 @@ describe('Tests of legal moves.', () => {
       const x = 2;
       const y = 2; // this move creates fork for board defined above
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
         weight: 11070, // same as score
         score: 11070, // fork provides large bonus to score
+        miniMax: 0,
         props: {
           win: false,
           fork: true,
           lineUp: 2,
-          miniMax: 0,
         },
         oppProps: {
           win: true,
           fork: false,
           lineUp: 2,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -269,24 +261,23 @@ describe('Tests of legal moves.', () => {
       const x = 0;
       const y = 2;
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
         weight: 100070, // same as score
         score: 100070, // winning move has big score bonus
+        miniMax: 0,
         props: {
           win: true,
           fork: false,
           lineUp: 2,
-          miniMax: 0,
         },
         oppProps: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -300,24 +291,23 @@ describe('Tests of legal moves.', () => {
       const x = 1;
       const y = 0;
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
         weight: 100060, // same as score
         score: 100060, // winning move has big score bonus
+        miniMax: 0,
         props: {
           win: true,
           fork: false,
           lineUp: 2,
-          miniMax: 0,
         },
         oppProps: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -331,24 +321,23 @@ describe('Tests of legal moves.', () => {
       const x = 2;
       const y = 1;
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
         weight: 100060, // same as score
         score: 100060, // winning move has big score bonus
+        miniMax: 0,
         props: {
           win: true,
           fork: false,
           lineUp: 2,
-          miniMax: 0,
         },
         oppProps: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -362,24 +351,23 @@ describe('Tests of legal moves.', () => {
       const x = 0;
       const y = 0;
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
         weight: 100070, // same as score
         score: 100070,
+        miniMax: 0,
         props: {
           win: true,
           fork: false,
           lineUp: 2,
-          miniMax: 0,
         },
         oppProps: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -393,24 +381,23 @@ describe('Tests of legal moves.', () => {
       const x = 1;
       const y = 1;
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
         weight: 100100, // same as score
         score: 100100,
+        miniMax: 0,
         props: {
           win: true,
           fork: false,
           lineUp: 2,
-          miniMax: 0,
         },
         oppProps: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -424,24 +411,23 @@ describe('Tests of legal moves.', () => {
       const x = 1;
       const y = 2;
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
         weight: 100060, // same as score
         score: 100060,
+        miniMax: 0,
         props: {
           win: true,
           fork: false,
           lineUp: 2,
-          miniMax: 0,
         },
         oppProps: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -455,24 +441,23 @@ describe('Tests of legal moves.', () => {
       const x = 2;
       const y = 0;
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
         weight: 100070, // same as score
         score: 100070,
+        miniMax: 0,
         props: {
           win: true,
           fork: false,
           lineUp: 2,
-          miniMax: 0,
         },
         oppProps: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -486,24 +471,23 @@ describe('Tests of legal moves.', () => {
       const x = 1;
       const y = 1;
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
         weight: 100100, // same as score
         score: 100100,
+        miniMax: 0,
         props: {
           win: true,
           fork: false,
           lineUp: 2,
-          miniMax: 0,
         },
         oppProps: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -518,24 +502,23 @@ describe('Tests of legal moves.', () => {
       const x = 0;
       const y = 2;
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
         weight: 10020, // same as score
         score: 10020, // score higher if it prevents opponent's win
+        miniMax: 0,
         props: {
           win: false,
           fork: false,
           lineUp: 0,
-          miniMax: 0,
         },
         oppProps: {
           win: true,
           fork: false,
           lineUp: 2,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);

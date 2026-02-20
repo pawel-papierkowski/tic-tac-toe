@@ -4,7 +4,7 @@ import type { Position } from '@vueuse/core';
 import { EnDifficulty, EnWhoFirst, EnGameStatus, EnCellState, EnPlayerType } from '@/code/data/enums.ts';
 
 // DEBUG CONSTANTS
-export const defDebugMode: boolean = true;
+const defDebugMode: boolean = true;
 
 // //////////
 // Game view.
@@ -78,6 +78,7 @@ function createStrikeData(): StrikeData {
 export type DebugCell = {
   score: number;
   weight: number;
+  miniMax: number;
   props: MoveProps;
   oppProps: MoveProps;
 };
@@ -86,6 +87,7 @@ function createDebugCell(): DebugCell {
   return {
     score: 0,
     weight: 0,
+    miniMax: 0,
     props: createMoveProps(),
     oppProps: createMoveProps(),
   };
@@ -115,6 +117,18 @@ function createDebugData(): DebugData {
   };
 }
 
+export function createEmptyBoard(): EnCellState[][] {
+  return createFilledBoard(EnCellState.Empty);
+}
+
+export function createFilledBoard(cellState: EnCellState): EnCellState[][] {
+  return [
+      [cellState, cellState, cellState],
+      [cellState, cellState, cellState],
+      [cellState, cellState, cellState],
+    ];
+}
+
 type GameBoard = {
   status: EnGameStatus;
   cells: EnCellState[][];
@@ -127,11 +141,7 @@ type GameBoard = {
 export function createGameBoard(): GameBoard {
   return {
     status: EnGameStatus.InProgress,
-    cells: [
-      [EnCellState.Empty, EnCellState.Empty, EnCellState.Empty],
-      [EnCellState.Empty, EnCellState.Empty, EnCellState.Empty],
-      [EnCellState.Empty, EnCellState.Empty, EnCellState.Empty],
-    ],
+    cells: createEmptyBoard(),
     firstPlayer: EnPlayerType.Human,
     currentPlayer: EnPlayerType.Human,
     strike: createStrikeData(),
@@ -198,16 +208,6 @@ export function createGameState(): GameState {
 // Types for tic-tac-toe engine.
 // /////////////////////////////
 
-export type MiniMaxScoring = {
-  max: number; // Max.
-  win: number; // Points for winning state for board.
-  draw: number; // Points for draw.
-  inLine3: number; // Points for each 3-in-a-line.
-  inLine2: number; // Points for each 2-in-a-line (and one empty cell).
-  inLine1: number; // Points for each 2-in-a-line (and two empty cells).
-  other: number; // Points for all other moves.
-};
-
 export type PointsData = {
   posBasic: number; // Points for basic move.
   posCorner: number; // Points for move in corner.
@@ -242,7 +242,6 @@ export type MoveProps = {
   win: boolean; // If true, this move is winning move.
   lineUp: number; // Amout of other your marks that are lined up with this move.
   fork: boolean; // If true, this move will produce fork for you.
-  miniMax: number; // MiniMax score. Present only for AI props.
 };
 
 function createMoveProps(): MoveProps {
@@ -250,7 +249,6 @@ function createMoveProps(): MoveProps {
     win: false,
     lineUp: 0,
     fork: false,
-    miniMax: 0,
   };
 }
 
@@ -260,8 +258,9 @@ export type LegalMove = {
   y: number;
   score: number; // The higher score, the better is move. Same on any difficulty.
   weight: number; // Importance of move. Used in medium and hard difficulties.
-  props: MoveProps; // move properties needed for score/weight from your perspective
-  oppProps: MoveProps; // move properties needed for score/weight from opponent's perspective
+  miniMax: number; // MiniMax score. Present only for best move found, otherwise it is 0.
+  props: MoveProps; // Move properties needed for score/weight from your perspective.
+  oppProps: MoveProps; // Move properties needed for score/weight from opponent's perspective.
 };
 
 export function createLegalMove(who: EnCellState, x: number, y: number): LegalMove {
@@ -271,10 +270,25 @@ export function createLegalMove(who: EnCellState, x: number, y: number): LegalMo
     y: y,
     score: 0,
     weight: 0,
+    miniMax: 0,
     props: createMoveProps(),
     oppProps: createMoveProps(),
   };
 }
+
+///////////////////////////
+// MiniMax algorithm types.
+///////////////////////////
+
+export type MiniMaxScoring = {
+  max: number; // Max.
+  win: number; // Points for winning state for board.
+  draw: number; // Points for draw.
+  inLine3: number; // Points for each 3-in-a-line.
+  inLine2: number; // Points for each 2-in-a-line (and one empty cell).
+  inLine1: number; // Points for each 2-in-a-line (and two empty cells).
+  other: number; // Points for all other moves.
+};
 
 export type Line3 = {
   x1: number;
@@ -283,6 +297,22 @@ export type Line3 = {
   y2: number;
   x3: number;
   y3: number;
+};
+
+export function createMiniMaxResult(): MiniMaxResult {
+  return {
+    score: 0,
+    depth: -1,
+    x: -1,
+    y: -1,
+  };
+}
+
+export type MiniMaxResult = {
+  score: number; // Best score found.
+  depth: number; // Depth.
+  x: number; // X for best score.
+  y: number; // Y for best score.
 };
 
 /////////

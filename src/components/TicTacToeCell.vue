@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+
 import type { GameState } from '@/code/data/types.ts';
 import { EnCellState } from '@/code/data/enums.ts';
 import { humanMove } from '@/code/ticTacToe.ts';

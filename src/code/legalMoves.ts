@@ -2,10 +2,10 @@
  * Naive implementation of Tic-Tac-Toe AI.
  */
 import type { Ref } from 'vue';
-import type { GameState, LegalMove, PointsData, MoveProps } from '@/code/data/types.ts';
+import type { GameState, LegalMove, PointsData, MoveProps, MiniMaxResult } from '@/code/data/types.ts';
 import { createLegalMove } from '@/code/data/types.ts';
-import { EnCellState, EnDifficulty, EnPlayerType } from '@/code/data/enums.ts';
-import { defScoringData, weightData } from '@/code/data/data.ts'; // cellStateDescr
+import { EnCellState, EnDifficulty } from '@/code/data/enums.ts';
+import { defScoringData, weightData, gameConfig } from '@/code/data/data.ts'; // cellStateDescr
 import { resolveMiniMax } from '@/code/miniMax.ts';
 
 /**
@@ -15,17 +15,26 @@ import { resolveMiniMax } from '@/code/miniMax.ts';
  * @returns Array of legal moves. If array is empty, no move is possible, making it tie.
  */
 export function resolveAllLegalMoves(gameState: Ref<GameState>, who: EnCellState): LegalMove[] {
+  let miniMaxResult : MiniMaxResult | null = null;
+  if (gameState.value.settings.difficulty === EnDifficulty.Impossible || gameState.value.debugSettings.debugMode) {
+    // Find out best move according to MiniMax algorithm.
+    miniMaxResult = resolveMiniMax(gameState.value.board.cells, who, gameConfig.maxDepth);
+  }
+
   // Game is simple enough that we can just brute-force it.
-  // Find all legal moves and assign scoring data to each one.
+  // Find all legal moves and assign scoring data to each one. Used mostly on lower difficulties.
   const legalMoves: LegalMove[] = []; // empty array
   for (let x = 0; x < 3; x++) {
     for (let y = 0; y < 3; y++) {
-      if (gameState.value.board.cells[x]![y] != EnCellState.Empty) continue;
-      // Any empty cell is legal move.
-      const legalMove = resolveLegalMove(gameState, who, x, y);
+      if (gameState.value.board.cells[x]![y] != EnCellState.Empty) continue; // Any empty cell is legal move.
+
+      // We use MiniMaxResult only if it exists and is for this cell.
+      const locMiniMaxResult = (miniMaxResult !== null && x === miniMaxResult.x && y === miniMaxResult.y) ? miniMaxResult : null;
+      const legalMove = resolveLegalMove(gameState, who, x, y, locMiniMaxResult);
       legalMoves.push(legalMove);
     }
   }
+
   //console.log(`resolveAllLegalMoves() called by ${cellStateDescr[who]}. ${legalMoves.length} move(s) found.`);
   return legalMoves;
 }
@@ -36,16 +45,20 @@ export function resolveAllLegalMoves(gameState: Ref<GameState>, who: EnCellState
  * @param who Who is making move? Crosses or naughts?
  * @param x X coordinate of cell.
  * @param y Y coordinate of cell.
+ * @param miniMaxResult MiniMax algo result, if any.
  * @returns Created and filled legal move.
  */
-export function resolveLegalMove(gameState: Ref<GameState>, who: EnCellState, x: number, y: number): LegalMove {
+export function resolveLegalMove(gameState: Ref<GameState>, who: EnCellState, x: number, y: number, miniMaxResult : MiniMaxResult | null): LegalMove {
   const legalMove = createLegalMove(who, x, y);
+
   // calculations for you
-  fillMoveProps(true, gameState, legalMove.props, who, x, y);
+  fillMoveProps(gameState, legalMove.props, who, x, y);
   // calculations for opponent
   const otherWho: EnCellState = who === EnCellState.X ? EnCellState.O : EnCellState.X;
-  fillMoveProps(false, gameState, legalMove.oppProps, otherWho, x, y);
+  fillMoveProps(gameState, legalMove.oppProps, otherWho, x, y);
+
   // final scoring/weighting
+  legalMove.miniMax = miniMaxResult !== null ? miniMaxResult.score : 0;
   legalMove.score = calcMovePoints(gameState, legalMove, defScoringData);
   legalMove.weight = calcMovePoints(gameState, legalMove, weightData[gameState.value.settings.difficulty]); // note in many cases score === weight
   return legalMove;
@@ -60,11 +73,10 @@ export function resolveLegalMove(gameState: Ref<GameState>, who: EnCellState, x:
  * @param x X coordinate of cell.
  * @param y Y coordinate of cell.
  */
-function fillMoveProps(you : boolean, gameState: Ref<GameState>, moveProps: MoveProps, who: EnCellState, x: number, y: number) {
+function fillMoveProps(gameState: Ref<GameState>, moveProps: MoveProps, who: EnCellState, x: number, y: number) {
   moveProps.win = calcWin(gameState.value.board.cells, who, x, y);
   moveProps.lineUp = calcLineUp(gameState.value.board.cells, who, x, y);
   moveProps.fork = calcFork(moveProps);
-  moveProps.miniMax = calcMiniMax(you, gameState, who);
 }
 
 //
@@ -181,20 +193,6 @@ function calcFork(moveProps: MoveProps): boolean {
   return false;
 }
 
-/**
- * Calculate MiniMax score.
- * @param you If true, move properties are calculated for you, otherwise for opponent.
- * @param gameState Reference to game state.
- * @param who Who is making move? Crosses or naughts?
- * @returns MiniMax score.
- */
-function calcMiniMax(you : boolean, gameState: Ref<GameState>, who: EnCellState): number {
-  // MiniMax is calculated only for AI.
-  if (gameState.value.board.currentPlayer !== EnPlayerType.AI) return 0;
-  if (!you) return 0; // AI cannot be opponent.
-  return resolveMiniMax(gameState, who);
-}
-
 //
 
 /**
@@ -214,7 +212,8 @@ function calcMiniMax(you : boolean, gameState: Ref<GameState>, who: EnCellState)
  * @returns Calculated point value.
  */
 function calcMovePoints(gameState: Ref<GameState>, move: LegalMove, pointsData: PointsData): number {
-  if (gameState.value.settings.difficulty === EnDifficulty.Impossible) return move.props.miniMax;
+  if (gameState.value.settings.difficulty === EnDifficulty.Impossible) return move.miniMax;
+
   // First, points for position.
   let points = calcPositionPoints(move, pointsData);
   // Line up bonus.
@@ -223,7 +222,7 @@ function calcMovePoints(gameState: Ref<GameState>, move: LegalMove, pointsData: 
   if (move.props.fork) points += pointsData.bonusFork; // faciliate your fork
   if (move.oppProps.fork) points += pointsData.bonusPreventFork; // prevent opponent's fork
   // Minimax bonus.
-  points += move.props.miniMax*pointsData.mulMiniMax;
+  points += move.miniMax*pointsData.mulMiniMax;
 
   // Win checks for you and opponent.
   if (move.props.win) points += pointsData.bonusWin;

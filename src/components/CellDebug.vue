@@ -18,13 +18,13 @@ const _props = defineProps<{
       <div></div>
       <div>Score: {{ gameState.board.debug.cells[x]![y]?.score }}</div>
       <div>Weight: {{ gameState.board.debug.cells[x]![y]?.weight }}</div>
+      <div>MiniMax: {{ gameState.board.debug.cells[x]![y]?.miniMax }}</div>
+      <div></div>
 
       <div><b>{{ playerTypeDescr[gameState.board.debug.debugPlayer1] }}</b></div>
       <div><b>{{ playerTypeDescr[gameState.board.debug.debugPlayer2] }}</b></div>
       <div>Win: {{ gameState.board.debug.cells[x]![y]?.props.win }}</div>
       <div>Win: {{ gameState.board.debug.cells[x]![y]?.oppProps.win }}</div>
-      <div>MiniMax: {{ gameState.board.debug.cells[x]![y]?.props.miniMax }}</div>
-      <div>MiniMax: {{ gameState.board.debug.cells[x]![y]?.oppProps.miniMax }}</div>
       <div>Fork: {{ gameState.board.debug.cells[x]![y]?.props.fork }}</div>
       <div>Fork: {{ gameState.board.debug.cells[x]![y]?.oppProps.fork }}</div>
       <div>LineUp: {{ gameState.board.debug.cells[x]![y]?.props.lineUp }}</div>

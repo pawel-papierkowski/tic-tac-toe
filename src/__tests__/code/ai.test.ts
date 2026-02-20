@@ -2,12 +2,13 @@ import { describe, it, expect } from 'vitest';
 import { ref } from 'vue';
 import { assertMove, assertWinState } from '../utils/assertions.ts';
 
-import { createGameState, StrikeData, type LegalMove } from '../../code/data/types.ts';
+import type { StrikeData, LegalMove } from '../../code/data/types.ts';
+import { createGameState, createLegalMove } from '../../code/data/types.ts';
 import { EnDifficulty, EnCellState } from '../../code/data/enums.ts';
 import { resolveAllLegalMoves, resolveLegalMove } from '../../code/legalMoves.ts';
-import { checkWinState, moveAiDifficulty } from '../../code/ai.ts';
+import { checkWinState, moveAiDifficulty, executeMove } from '../../code/ai.ts';
 
-import { createGameStateForAI } from '../utils/prepare.ts';
+import { createGameStateForAI, createGameStateForHuman } from '../utils/prepare.ts';
 
 describe('Tests of AI.', () => {
   describe('Win states', () => {
@@ -150,24 +151,23 @@ describe('Tests of AI.', () => {
       const x = 0;
       const y = 2;
 
-      const actualMove = resolveLegalMove(gameState, who, x, y, true);
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
       const expectedMove: LegalMove = {
         who: who,
         x: x,
         y: y, // always same
-        weight: 570, // medium has different value compared to score
         score: 100070, // winning move has big score bonus
+        weight: 570, // medium has different value compared to score
+        miniMax: 0,
         props: {
           win: true,
           lineUp: 2,
           fork: false,
-          miniMax: 0,
         },
         oppProps: {
           win: false,
           lineUp: 0,
           fork: false,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
@@ -175,7 +175,7 @@ describe('Tests of AI.', () => {
 
     it('impossible always picks highest score', () => {
       const gameState = ref(createGameStateForAI());
-      const legalMoves = resolveAllLegalMoves(gameState, EnCellState.X, true);
+      const legalMoves = resolveAllLegalMoves(gameState, EnCellState.X);
       // Empty board and AI starts game, so all cells are available as moves.
       expect(legalMoves.length, `Mismatch of amount of available moves.`).toBe(9);
 
@@ -186,22 +186,56 @@ describe('Tests of AI.', () => {
         who: EnCellState.X,
         x: 1,
         y: 1,
-        weight: 50,
-        score: 50,
+        score: 11,
+        weight: 11,
+        miniMax: 11,
         props: {
           win: false,
           lineUp: 0,
           fork: false,
-          miniMax: 0,
         },
         oppProps: {
           win: false,
           lineUp: 0,
           fork: false,
-          miniMax: 0,
         },
       };
       assertMove(actualMove, expectedMove);
     });
+
+    it('impossible plays correct move when human starts first on non-center cell', () => {
+      const gameState = ref(createGameStateForHuman());
+      // now manually make move as human...
+      const humanMove = createLegalMove(EnCellState.X, 0, 0); // first player is X
+      executeMove(gameState, humanMove);
+
+      // now AI is current player
+      const legalMoves = resolveAllLegalMoves(gameState, EnCellState.O); // second player is O
+      // Board with one human move and AI is second, so 8 cells are available as moves.
+      expect(legalMoves.length, `Mismatch of amount of available moves.`).toBe(8);
+
+      const actualMove: LegalMove = moveAiDifficulty(gameState, legalMoves);
+      const expectedMove: LegalMove = {
+        who: EnCellState.O,
+        x: 1,
+        y: 1,
+        score: 23,
+        weight: 23,
+        miniMax: 23,
+        props: {
+          win: false,
+          lineUp: 0,
+          fork: false,
+        },
+        oppProps: {
+          win: false,
+          lineUp: 1,
+          fork: false,
+        },
+      };
+      assertMove(actualMove, expectedMove);
+    });
+
+    // TODO: test sequence of moves that currently leads to human win on impossible difficulty
   });
 });
