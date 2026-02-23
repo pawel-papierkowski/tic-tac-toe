@@ -10,7 +10,10 @@ This is fully functional Tic-Tac-Toe game, including AI difficulty for perfect p
 Node.js: 24.13.0
 Vue.js: 3.5.27
 
+## Bugs
+
+Still some cases when AI wants to make nonsensical move...
+
 ## TODO
 - Finish testing of minimax algorithm.
-  Looks like AI sometimes is not making correct moves on Impossible difficulty when human starts first?
 - Review of codebase.

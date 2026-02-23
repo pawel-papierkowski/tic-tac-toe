@@ -18,7 +18,7 @@ export function resolveAllLegalMoves(gameState: Ref<GameState>, who: EnCellState
   let miniMaxResult : MiniMaxResult | null = null;
   if (gameState.value.settings.difficulty === EnDifficulty.Impossible || gameState.value.debugSettings.debugMode) {
     // Find out best move according to MiniMax algorithm.
-    miniMaxResult = resolveMiniMax(gameState.value.board.cells, who, gameConfig.maxDepth);
+    miniMaxResult = resolveMiniMax(who, gameConfig.maxDepth, gameState.value.board.cells);
   }
 
   // Game is simple enough that we can just brute-force it.
@@ -29,7 +29,7 @@ export function resolveAllLegalMoves(gameState: Ref<GameState>, who: EnCellState
       if (gameState.value.board.cells[x]![y] != EnCellState.Empty) continue; // Any empty cell is legal move.
 
       // We use MiniMaxResult only if it exists and is for this cell.
-      const locMiniMaxResult = (miniMaxResult !== null && x === miniMaxResult.x && y === miniMaxResult.y) ? miniMaxResult : null;
+      const locMiniMaxResult = canUseResult(miniMaxResult, x, y) ? miniMaxResult : null;
       const legalMove = resolveLegalMove(gameState, who, x, y, locMiniMaxResult);
       legalMoves.push(legalMove);
     }
@@ -37,6 +37,12 @@ export function resolveAllLegalMoves(gameState: Ref<GameState>, who: EnCellState
 
   //console.log(`resolveAllLegalMoves() called by ${cellStateDescr[who]}. ${legalMoves.length} move(s) found.`);
   return legalMoves;
+}
+
+function canUseResult(miniMaxResult : MiniMaxResult | null, x: number, y: number) : boolean {
+  if (miniMaxResult === null || miniMaxResult.moves.length === 0) return false;
+  // we want first move
+  return x === miniMaxResult.moves[0]?.x && y === miniMaxResult.moves[0]?.y;
 }
 
 /**

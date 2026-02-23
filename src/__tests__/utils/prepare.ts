@@ -1,6 +1,10 @@
+import type { Ref } from 'vue';
+
 import type { GameState } from '../../code/data/types.ts';
-import { createGameState } from '../../code/data/types.ts';
-import { EnDifficulty, EnWhoFirst, EnPlayerType } from '../../code/data/enums.ts';
+import { createGameState, createLegalMove } from '../../code/data/types.ts';
+import { EnDifficulty, EnWhoFirst, EnPlayerType, EnCellState } from '../../code/data/enums.ts';
+
+import { executeMove } from '../../code/ai.ts';
 
 export function createGameStateForAI(): GameState {
   const gameState = createGameState();
@@ -18,4 +22,11 @@ export function createGameStateForHuman(): GameState {
   gameState.board.firstPlayer = EnPlayerType.Human;
   gameState.board.currentPlayer = EnPlayerType.Human;
   return gameState;
+}
+
+export function makeTestMove(gameState: Ref<GameState>, x: number, y: number) {
+  const who = gameState.value.board.firstPlayer === gameState.value.board.currentPlayer ?
+    EnCellState.X : EnCellState.O;
+  const nextMove = createLegalMove(who, x, y);
+  executeMove(gameState, nextMove);
 }

@@ -24,7 +24,7 @@ type GameConfig = {
 };
 
 export const gameConfig: GameConfig = {
-  aiWait: 700, // 700
+  aiWait: 10000, // 700
   maxDepth: 3,
 }
 

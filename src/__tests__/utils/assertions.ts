@@ -1,6 +1,8 @@
 import { expect } from 'vitest';
 
-import type { LegalMove, StrikeData } from '../../code/data/types.ts';
+import { EnCellState } from '../../code/data/enums.ts';
+import type { LegalMove, StrikeData, MiniMaxResult } from '../../code/data/types.ts';
+import { resolveMiniMax } from '../../code/miniMax.ts';
 
 export function assertMove(actual: LegalMove, expected: LegalMove) {
   expect(actual, `LegalMove mismatch`).toEqual(expected);
@@ -18,4 +20,9 @@ export function assertEvaluation(actualScore: number, expectedScore: number) {
 
 export function assertMiniMax(actualScore: number, expectedScore: number) {
   expect(actualScore, `MiniMax score mismatch.`).toBe(expectedScore);
+}
+
+export function verifyMiniMaxForBoard(board: EnCellState[][], who: EnCellState, maxDepth: number, expectedResult: MiniMaxResult) {
+  const actualResult = resolveMiniMax(who, maxDepth, board);
+  expect(actualResult, `MiniMax result mismatch`).toEqual(expectedResult);
 }

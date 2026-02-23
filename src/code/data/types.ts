@@ -303,16 +303,14 @@ export function createMiniMaxResult(): MiniMaxResult {
   return {
     score: 0,
     depth: -1,
-    x: -1,
-    y: -1,
+    moves: [],
   };
 }
 
 export type MiniMaxResult = {
   score: number; // Best score found.
   depth: number; // Depth.
-  x: number; // X for best score.
-  y: number; // Y for best score.
+  moves: Position[]; // Moves that lead to this result.
 };
 
 /////////
