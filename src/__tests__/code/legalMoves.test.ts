@@ -3,8 +3,10 @@ import { ref } from 'vue';
 import { assertMove } from '../utils/assertions.ts';
 
 import { createGameState, type LegalMove } from '../../code/data/types.ts';
-import { EnCellState } from '../../code/data/enums.ts';
+import { EnCellState, EnDifficulty } from '../../code/data/enums.ts';
+import { gameConfig } from '../../code/data/data.ts';
 import { resolveLegalMove } from '../../code/legalMoves.ts';
+import { resolveMiniMax } from '../../code/miniMax.ts';
 
 describe('Tests of legal moves.', () => {
   describe('Scoring', () => {
@@ -20,9 +22,9 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 10, // same as score
         score: 10, // basic score
-        miniMax: 0,
+        weight: 0, // on easy weight does not matter
+        miniMax: null,
         props: {
           win: false,
           fork: false,
@@ -49,9 +51,9 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 20, // same as score
         score: 20, // score for corner cell
-        miniMax: 0,
+        weight: 0, // on easy weight does not matter
+        miniMax: null,
         props: {
           win: false,
           fork: false,
@@ -78,13 +80,109 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 50, // same as score
         score: 50, // score for center cell
-        miniMax: 0,
+        weight: 0, // on easy weight does not matter
+        miniMax: null,
         props: {
           win: false,
           fork: false,
           lineUp: 0,
+        },
+        oppProps: {
+          win: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
+      assertMove(actualMove, expectedMove);
+    });
+  });
+
+  describe('Weights', () => {
+    it('calculates correct weight for win on medium difficulty', () => {
+      const gameState = ref(createGameState());
+      gameState.value.settings.difficulty = EnDifficulty.Medium;
+      gameState.value.board.cells[0]![0] = EnCellState.O;
+      gameState.value.board.cells[0]![1] = EnCellState.O;
+      const who = EnCellState.O;
+      const x = 0;
+      const y = 2;
+
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
+      const expectedMove: LegalMove = {
+        who: who,
+        x: x,
+        y: y, // always same
+        score: 100070, // winning move has big score bonus
+        weight: 570, // weight for medium difficulty
+        miniMax: null,
+        props: {
+          win: true,
+          fork: false,
+          lineUp: 2,
+        },
+        oppProps: {
+          win: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
+      assertMove(actualMove, expectedMove);
+    });
+
+    it('calculates correct weight for win on hard difficulty', () => {
+      const gameState = ref(createGameState());
+      gameState.value.settings.difficulty = EnDifficulty.Hard;
+      gameState.value.board.cells[0]![0] = EnCellState.O;
+      gameState.value.board.cells[0]![1] = EnCellState.O;
+      const who = EnCellState.O;
+      const x = 0;
+      const y = 2;
+
+      const actualMove = resolveLegalMove(gameState, who, x, y, null);
+      const expectedMove: LegalMove = {
+        who: who,
+        x: x,
+        y: y, // always same
+        score: 100070, // winning move has big score bonus
+        weight: 100070, // weight for hard difficulty is same as score
+        miniMax: null,
+        props: {
+          win: true,
+          fork: false,
+          lineUp: 2,
+        },
+        oppProps: {
+          win: false,
+          fork: false,
+          lineUp: 0,
+        },
+      };
+      assertMove(actualMove, expectedMove);
+    });
+
+    it('calculates correct weight for win on impossible difficulty', () => {
+      const gameState = ref(createGameState());
+      gameState.value.settings.difficulty = EnDifficulty.Impossible;
+      gameState.value.board.cells[0]![0] = EnCellState.O;
+      gameState.value.board.cells[0]![1] = EnCellState.O;
+      const who = EnCellState.O;
+      const x = 0;
+      const y = 2;
+
+      const miniMaxResult = resolveMiniMax(who, gameConfig.maxDepth, gameState.value.board.cells);
+      const actualMove = resolveLegalMove(gameState, who, x, y, miniMaxResult);
+      const expectedMove: LegalMove = {
+        who: who,
+        x: x,
+        y: y, // always same
+        score: 1000, // same as miniMax
+        weight: 1000, // same as miniMax (weight for impossible difficulty does not matter anyway)
+        miniMax: 1000, // result from miniMax algorithm
+        props: {
+          win: true,
+          fork: false,
+          lineUp: 2,
         },
         oppProps: {
           win: false,
@@ -109,9 +207,9 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 45, // same as score
         score: 45, // lineup provides bonus to score
-        miniMax: 0,
+        weight: 0, // on easy weight does not matter
+        miniMax: null,
         props: {
           win: false,
           fork: false,
@@ -139,9 +237,9 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 20, // same as score
         score: 20, // no lineup bonus
-        miniMax: 0,
+        weight: 0, // on easy weight does not matter
+        miniMax: null,
         props: {
           win: false,
           fork: false,
@@ -171,9 +269,9 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 1070, // same as score
         score: 1070, // lineup provides bonus to score
-        miniMax: 0,
+        weight: 0, // on easy weight does not matter
+        miniMax: null,
         props: {
           win: false,
           fork: true,
@@ -202,9 +300,9 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 1095, // same as score
         score: 1095, // lineup provides bonus to score
-        miniMax: 0,
+        weight: 0, // on easy weight does not matter
+        miniMax: null,
         props: {
           win: false,
           fork: true,
@@ -234,9 +332,9 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 11070, // same as score
         score: 11070, // fork provides large bonus to score
-        miniMax: 0,
+        weight: 0, // on easy weight does not matter
+        miniMax: null,
         props: {
           win: false,
           fork: true,
@@ -266,9 +364,9 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 100070, // same as score
         score: 100070, // winning move has big score bonus
-        miniMax: 0,
+        weight: 0, // on easy weight does not matter
+        miniMax: null,
         props: {
           win: true,
           fork: false,
@@ -296,9 +394,9 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 100060, // same as score
         score: 100060, // winning move has big score bonus
-        miniMax: 0,
+        weight: 0, // on easy weight does not matter
+        miniMax: null,
         props: {
           win: true,
           fork: false,
@@ -326,9 +424,9 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 100060, // same as score
         score: 100060, // winning move has big score bonus
-        miniMax: 0,
+        weight: 0, // on easy weight does not matter
+        miniMax: null,
         props: {
           win: true,
           fork: false,
@@ -356,9 +454,9 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 100070, // same as score
         score: 100070,
-        miniMax: 0,
+        weight: 0, // on easy weight does not matter
+        miniMax: null,
         props: {
           win: true,
           fork: false,
@@ -386,9 +484,9 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 100100, // same as score
         score: 100100,
-        miniMax: 0,
+        weight: 0, // on easy weight does not matter
+        miniMax: null,
         props: {
           win: true,
           fork: false,
@@ -416,9 +514,9 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 100060, // same as score
         score: 100060,
-        miniMax: 0,
+        weight: 0, // on easy weight does not matter
+        miniMax: null,
         props: {
           win: true,
           fork: false,
@@ -446,9 +544,9 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 100070, // same as score
         score: 100070,
-        miniMax: 0,
+        weight: 0, // on easy weight does not matter
+        miniMax: null,
         props: {
           win: true,
           fork: false,
@@ -476,9 +574,9 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 100100, // same as score
         score: 100100,
-        miniMax: 0,
+        weight: 0, // on easy weight does not matter
+        miniMax: null,
         props: {
           win: true,
           fork: false,
@@ -507,9 +605,9 @@ describe('Tests of legal moves.', () => {
         who: who,
         x: x,
         y: y, // always same
-        weight: 10020, // same as score
         score: 10020, // score higher if it prevents opponent's win
-        miniMax: 0,
+        weight: 0, // on easy weight does not matter
+        miniMax: null,
         props: {
           win: false,
           fork: false,

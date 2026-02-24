@@ -12,8 +12,7 @@ Vue.js: 3.5.27
 
 ## Bugs
 
-Still some cases when AI wants to make nonsensical move...
+None known.
 
 ## TODO
-- Finish testing of minimax algorithm.
 - Review of codebase.

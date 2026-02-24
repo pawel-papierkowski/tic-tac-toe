@@ -6,6 +6,7 @@ import { EnDifficulty, EnWhoFirst, EnPlayerType, EnCellState } from '../../code/
 
 import { executeMove } from '../../code/ai.ts';
 
+/** Create game state on impossible difficulty where AI starts first. */
 export function createGameStateForAI(): GameState {
   const gameState = createGameState();
   gameState.settings.whoFirst = EnWhoFirst.AI;
@@ -15,6 +16,7 @@ export function createGameStateForAI(): GameState {
   return gameState;
 }
 
+/** Create game state on impossible difficulty where human starts first. */
 export function createGameStateForHuman(): GameState {
   const gameState = createGameState();
   gameState.settings.whoFirst = EnWhoFirst.Human;

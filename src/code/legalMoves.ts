@@ -5,7 +5,7 @@ import type { Ref } from 'vue';
 import type { GameState, LegalMove, PointsData, MoveProps, MiniMaxResult } from '@/code/data/types.ts';
 import { createLegalMove } from '@/code/data/types.ts';
 import { EnCellState, EnDifficulty } from '@/code/data/enums.ts';
-import { defScoringData, weightData, gameConfig } from '@/code/data/data.ts'; // cellStateDescr
+import { defScoringData, weightData, gameConfig, miniMaxScoring } from '@/code/data/data.ts'; // cellStateDescr
 import { resolveMiniMax } from '@/code/miniMax.ts';
 
 /**
@@ -16,21 +16,18 @@ import { resolveMiniMax } from '@/code/miniMax.ts';
  */
 export function resolveAllLegalMoves(gameState: Ref<GameState>, who: EnCellState): LegalMove[] {
   let miniMaxResult : MiniMaxResult | null = null;
-  if (gameState.value.settings.difficulty === EnDifficulty.Impossible || gameState.value.debugSettings.debugMode) {
+  if (gameState.value.settings.difficulty !== EnDifficulty.Easy || gameState.value.debugSettings.debugMode) {
     // Find out best move according to MiniMax algorithm.
     miniMaxResult = resolveMiniMax(who, gameConfig.maxDepth, gameState.value.board.cells);
   }
 
   // Game is simple enough that we can just brute-force it.
-  // Find all legal moves and assign scoring data to each one. Used mostly on lower difficulties.
+  // Find all legal moves and assign scoring data to each one.
   const legalMoves: LegalMove[] = []; // empty array
   for (let x = 0; x < 3; x++) {
     for (let y = 0; y < 3; y++) {
       if (gameState.value.board.cells[x]![y] != EnCellState.Empty) continue; // Any empty cell is legal move.
-
-      // We use MiniMaxResult only if it exists and is for this cell.
-      const locMiniMaxResult = canUseResult(miniMaxResult, x, y) ? miniMaxResult : null;
-      const legalMove = resolveLegalMove(gameState, who, x, y, locMiniMaxResult);
+      const legalMove = resolveLegalMove(gameState, who, x, y, miniMaxResult);
       legalMoves.push(legalMove);
     }
   }
@@ -39,19 +36,13 @@ export function resolveAllLegalMoves(gameState: Ref<GameState>, who: EnCellState
   return legalMoves;
 }
 
-function canUseResult(miniMaxResult : MiniMaxResult | null, x: number, y: number) : boolean {
-  if (miniMaxResult === null || miniMaxResult.moves.length === 0) return false;
-  // we want first move
-  return x === miniMaxResult.moves[0]?.x && y === miniMaxResult.moves[0]?.y;
-}
-
 /**
  * Create legal move and fill it properly with data so AI can use it later.
  * @param gameState Reference to game state.
  * @param who Who is making move? Crosses or naughts?
  * @param x X coordinate of cell.
  * @param y Y coordinate of cell.
- * @param miniMaxResult MiniMax algo result, if any.
+ * @param miniMaxResult MiniMax algo result for certain cell. Null means no result was generated at all.
  * @returns Created and filled legal move.
  */
 export function resolveLegalMove(gameState: Ref<GameState>, who: EnCellState, x: number, y: number, miniMaxResult : MiniMaxResult | null): LegalMove {
@@ -64,10 +55,25 @@ export function resolveLegalMove(gameState: Ref<GameState>, who: EnCellState, x:
   fillMoveProps(gameState, legalMove.oppProps, otherWho, x, y);
 
   // final scoring/weighting
-  legalMove.miniMax = miniMaxResult !== null ? miniMaxResult.score : 0;
+  legalMove.miniMax = resolveMiniMaxScore(miniMaxResult, x, y);
   legalMove.score = calcMovePoints(gameState, legalMove, defScoringData);
   legalMove.weight = calcMovePoints(gameState, legalMove, weightData[gameState.value.settings.difficulty]); // note in many cases score === weight
   return legalMove;
+}
+
+/**
+ * Finds out miniMax score.
+ * @param miniMaxResult MiniMax result.
+ * @param x X coordinate of cell.
+ * @param y Y coordinate of cell.
+ * @returns MiniMax score, if any, or 0 if no score for any reason.
+ */
+function resolveMiniMaxScore(miniMaxResult : MiniMaxResult | null, x: number, y: number) : number | null {
+  // No miniMax result present or no moves available.
+  if (miniMaxResult === null || miniMaxResult.moves.length === 0) return null;
+
+  if (x === miniMaxResult.moves[0]?.x && y === miniMaxResult.moves[0]?.y) return miniMaxResult.score;
+  return null; // MiniMax result exists, but it is not for this cell.
 }
 
 /**
@@ -218,7 +224,10 @@ function calcFork(moveProps: MoveProps): boolean {
  * @returns Calculated point value.
  */
 function calcMovePoints(gameState: Ref<GameState>, move: LegalMove, pointsData: PointsData): number {
-  if (gameState.value.settings.difficulty === EnDifficulty.Impossible) return move.miniMax;
+  if (gameState.value.settings.difficulty === EnDifficulty.Impossible) {
+    // Impossible difficulty always uses MiniMax algorithm. One move is selected, rest must not be chosen.
+    return move.miniMax ?? -miniMaxScoring.max;
+  }
 
   // First, points for position.
   let points = calcPositionPoints(move, pointsData);
@@ -227,8 +236,8 @@ function calcMovePoints(gameState: Ref<GameState>, move: LegalMove, pointsData: 
   // Fork bonus.
   if (move.props.fork) points += pointsData.bonusFork; // faciliate your fork
   if (move.oppProps.fork) points += pointsData.bonusPreventFork; // prevent opponent's fork
-  // Minimax bonus.
-  points += move.miniMax*pointsData.mulMiniMax;
+  // Minimax bonus. On difficulties other than impossible, MiniMax merely makes this move more likely.
+  if (move.miniMax !== null) points += move.miniMax*pointsData.mulMiniMax;
 
   // Win checks for you and opponent.
   if (move.props.win) points += pointsData.bonusWin;
@@ -244,7 +253,7 @@ function calcMovePoints(gameState: Ref<GameState>, move: LegalMove, pointsData: 
  */
 function calcPositionPoints(move: LegalMove, pointsData: PointsData): number {
   let points = pointsData.posBasic; // basic points for move
-  if ((move.x === 0 || move.x === 2) && (move.y === 0 || move.y === 2)) points = pointsData.posCorner; // corner position has higher points
-  if (move.x === 1 && move.y === 1) points = pointsData.posCenter; // center position has significantly higher points
+  if ((move.x === 0 || move.x === 2) && (move.y === 0 || move.y === 2)) points = pointsData.posCorner; // corner position has higher reward
+  if (move.x === 1 && move.y === 1) points = pointsData.posCenter; // center position has significantly higher reward
   return points;
 }

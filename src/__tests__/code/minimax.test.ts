@@ -48,19 +48,34 @@ describe('Tests of MiniMax algorithm.', () => {
 
     it('score for empty board and 1 depth (scoring for next move)', () => {
       const board = createEmptyBoard();
-      const expectedResult = { score: 4, depth: 1, moves: [{x: 1, y: 1}] };
+      const expectedResult = { score: 4, depth: 1, moves: [{ x: 1, y: 1 }] };
       verifyMiniMaxForBoard(board, EnCellState.X, 1, expectedResult);
     });
 
     it('score for empty board and 2 depth (scoring for two moves: you and opponent)', () => {
       const board = createEmptyBoard();
-      const expectedResult = { score: 1, depth: 2, moves: [{x: 1, y: 1},{x: 2, y: 2}] };
+      const expectedResult = {
+        score: 1,
+        depth: 2,
+        moves: [
+          { x: 1, y: 1 },
+          { x: 2, y: 2 },
+        ],
+      };
       verifyMiniMaxForBoard(board, EnCellState.X, 2, expectedResult);
     });
 
     it('score for empty board and 3 depth (scoring for three moves: you, opponent, you)', () => {
       const board = createEmptyBoard();
-      const expectedResult = { score: 12, depth: 3, moves: [{x: 1, y: 1},{x: 2, y: 2},{x: 2, y: 0}] };
+      const expectedResult = {
+        score: 12,
+        depth: 3,
+        moves: [
+          { x: 1, y: 1 },
+          { x: 2, y: 2 },
+          { x: 2, y: 0 },
+        ],
+      };
       verifyMiniMaxForBoard(board, EnCellState.X, 3, expectedResult);
     });
   });
@@ -83,7 +98,7 @@ describe('Tests of MiniMax algorithm.', () => {
       const board = createEmptyBoard();
       board[0][1] = EnCellState.X;
       board[1][1] = EnCellState.X;
-      const expectedResult = { score: 1000, depth: 1, moves: [{x: 2, y: 1}] };
+      const expectedResult = { score: 1000, depth: 1, moves: [{ x: 2, y: 1 }] };
       verifyMiniMaxForBoard(board, EnCellState.X, 1, expectedResult);
     });
 
@@ -92,7 +107,7 @@ describe('Tests of MiniMax algorithm.', () => {
       board[0][1] = EnCellState.X;
       board[1][1] = EnCellState.X;
 
-      const expectedResult = { score: 1000, depth: 1, moves: [{x: 2, y: 1}] };
+      const expectedResult = { score: 1000, depth: 1, moves: [{ x: 2, y: 1 }] };
       // We found winning move immediately at depth 1.
       // Algo finds exactly same winning move later, at higher depth.
       // There is literally no reason to reuse same move later.
@@ -113,11 +128,19 @@ describe('Tests of MiniMax algorithm.', () => {
       // ???
 
       // Should not make move 2, 1 or 0, 2.
-      const expectedResult = { score: 10, depth: 3, moves: [{x: 1, y: 2},{x: 1, y: 0},{x: 0, y: 0}] };
+      const expectedResult = {
+        score: 10,
+        depth: 3,
+        moves: [
+          { x: 1, y: 2 },
+          { x: 1, y: 0 },
+          { x: 0, y: 0 },
+        ],
+      };
       verifyMiniMaxForBoard(board, EnCellState.O, 3, expectedResult);
     });
 
-    it('score for board where O are about to lose if O makes wrong move', () => {
+    it('score for board where O is about to lose (minimal)', () => {
       const board = createEmptyBoard();
       board[1][1] = EnCellState.X;
       board[2][0] = EnCellState.O;
@@ -128,7 +151,40 @@ describe('Tests of MiniMax algorithm.', () => {
       // ???
 
       // O must make move 0,1 otherwise it will lose
-      const expectedResult = { score: 0, depth: 3, moves: [{x: 0, y: 1},{x: 0, y: 0},{x: 2, y: 2}] };
+      const expectedResult = {
+        score: 0,
+        depth: 3,
+        moves: [
+          { x: 0, y: 1 },
+          { x: 0, y: 0 },
+          { x: 2, y: 2 },
+        ],
+      };
+      verifyMiniMaxForBoard(board, EnCellState.O, 3, expectedResult);
+    });
+
+    it('score for board where O is about to lose (further)', () => {
+      const board = createEmptyBoard();
+      board[0][2] = EnCellState.X;
+      board[1][1] = EnCellState.O;
+      board[2][0] = EnCellState.O;
+      board[2][1] = EnCellState.X;
+      board[2][2] = EnCellState.X;
+      // Current state of board:
+      // ??O
+      // ?OX
+      // X?X
+
+      // O must make move 1,2 otherwise it will lose
+      const expectedResult = {
+        score: 0,
+        depth: 3,
+        moves: [
+          { x: 1, y: 2 },
+          { x: 1, y: 0 },
+          { x: 0, y: 1 },
+        ],
+      };
       verifyMiniMaxForBoard(board, EnCellState.O, 3, expectedResult);
     });
   });

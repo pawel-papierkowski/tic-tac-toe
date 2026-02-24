@@ -20,12 +20,12 @@ export const gameFundProp: GameFundProp = {
 /** General configuration of game. */
 type GameConfig = {
   aiWait: number; // how long AI is idling before making move in milliseconds
-  maxDepth: number; // for miniMax algo
+  maxDepth: number; // maximum depth to go, for miniMax algo
 };
 
 export const gameConfig: GameConfig = {
-  aiWait: 10000, // 700
-  maxDepth: 3,
+  aiWait: 700, // 700
+  maxDepth: 3, // enough to detect fork attempts
 }
 
 //
@@ -75,7 +75,7 @@ export const defScoringData: PointsData = {
   mulMiniMax: 10,
 };
 
-export const scoringMedium: PointsData = {
+const weightsMedium: PointsData = {
   posBasic: 10,
   posCorner: 20,
   posCenter: 50,
@@ -89,7 +89,7 @@ export const scoringMedium: PointsData = {
   mulMiniMax: 1,
 };
 
-export const scoringHard: PointsData = {
+const weightsHard: PointsData = {
   posBasic: 10,
   posCorner: 20,
   posCenter: 50,
@@ -105,13 +105,13 @@ export const scoringHard: PointsData = {
 
 /** Weights matter only for Medium and Hard difficulties. */
 export const weightData: Record<EnDifficulty, PointsData> = {
-  [EnDifficulty.Easy]: scoringHard,
-  [EnDifficulty.Medium]: scoringMedium,
-  [EnDifficulty.Hard]: scoringHard,
-  [EnDifficulty.Impossible]: createPointsData(),
+  [EnDifficulty.Easy]: createPointsData(), // easy makes completely random moves, score does not matter
+  [EnDifficulty.Medium]: weightsMedium,
+  [EnDifficulty.Hard]: weightsHard,
+  [EnDifficulty.Impossible]: createPointsData(), // impossible relies only on miniMax
 };
 
-/** Evaluation score for MiniMax algorithm. */
+/** Evaluation values for MiniMax algorithm. */
 export const miniMaxScoring: MiniMaxScoring = {
   max:     10000,
   win:     1000,
@@ -122,6 +122,7 @@ export const miniMaxScoring: MiniMaxScoring = {
   other:   0,
 };
 
+/** Shortcut to know which cells are lines. */
 export const line3array: Line3[] = [
   {x1: 0, y1: 0, x2: 0, y2: 1, x3: 0, y3: 2}, // horizontal lines
   {x1: 1, y1: 0, x2: 1, y2: 1, x3: 1, y3: 2},

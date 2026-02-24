@@ -158,7 +158,7 @@ describe('Tests of AI.', () => {
         y: y, // always same
         score: 100070, // winning move has big score bonus
         weight: 570, // medium has different value compared to score
-        miniMax: 0,
+        miniMax: null,
         props: {
           win: true,
           lineUp: 2,
@@ -236,7 +236,7 @@ describe('Tests of AI.', () => {
   });
 
   describe('Board situations', () => {
-    it('impossible plays correct move for this board state', () => {
+    it('impossible plays correct move for 0,1 - 1,1 - 2,0', () => {
       const gameState = ref(createGameStateForHuman());
       // now manually make moves...
       makeTestMove(gameState, 0, 1); // H
@@ -268,6 +268,46 @@ describe('Tests of AI.', () => {
         oppProps: {
           win: false,
           lineUp: 0,
+          fork: false,
+        },
+      };
+      assertMove(actualMove, expectedMove);
+    });
+
+    it('impossible plays correct move for 2,1 - 1,1 - 2,2 - 2,0 - 0,2', () => {
+      const gameState = ref(createGameStateForHuman());
+      // now manually make moves...
+      makeTestMove(gameState, 2, 1); // H
+      makeTestMove(gameState, 1, 1); // A
+      makeTestMove(gameState, 2, 2); // H
+      makeTestMove(gameState, 2, 0); // A
+      makeTestMove(gameState, 0, 2); // H
+      // Current state of board:
+      // ??O
+      // ?OX
+      // X?X
+
+      // now AI is current player
+      const legalMoves = resolveAllLegalMoves(gameState, EnCellState.O); // second player is O
+      // Board with one human move and AI is second, so 6 cells are available as moves.
+      expect(legalMoves.length, `Mismatch of amount of available moves.`).toBe(4);
+
+      const actualMove: LegalMove = moveAiDifficulty(gameState, legalMoves);
+      const expectedMove: LegalMove = {
+        who: EnCellState.O,
+        x: 1,
+        y: 2,
+        score: 0,
+        weight: 0,
+        miniMax: 0, // predicts, at best, tie
+        props: {
+          win: false,
+          lineUp: 1,
+          fork: false,
+        },
+        oppProps: {
+          win: true,
+          lineUp: 2,
           fork: false,
         },
       };

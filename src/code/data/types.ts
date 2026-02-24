@@ -194,6 +194,7 @@ export type GameState = {
   statistics: GameStatistics;
 };
 
+/** Create default game state. Easy difficulty and first player is selected randomly. */
 export function createGameState(): GameState {
   return {
     view: createGameView(), // what should be shown on screen
@@ -258,7 +259,11 @@ export type LegalMove = {
   y: number;
   score: number; // The higher score, the better is move. Same on any difficulty.
   weight: number; // Importance of move. Used in medium and hard difficulties.
-  miniMax: number; // MiniMax score. Present only for best move found, otherwise it is 0.
+
+  // MiniMax score. Present only for best move found.
+  // We allow null for miniMax field to distinguish between missing miniMax result and specific miniMax result.
+  miniMax: number | null;
+
   props: MoveProps; // Move properties needed for score/weight from your perspective.
   oppProps: MoveProps; // Move properties needed for score/weight from opponent's perspective.
 };
@@ -270,7 +275,7 @@ export function createLegalMove(who: EnCellState, x: number, y: number): LegalMo
     y: y,
     score: 0,
     weight: 0,
-    miniMax: 0,
+    miniMax: null,
     props: createMoveProps(),
     oppProps: createMoveProps(),
   };
