@@ -12,6 +12,10 @@ import { EnCellState, EnDifficulty } from '@/code/data/enums.ts';
 import { defScoringData, weightData, gameConfig, gameFundProp, miniMaxScoring } from '@/code/data/data.ts'; // cellStateDescr
 import { resolveMiniMax } from '@/code/miniMax.ts';
 
+const CELL_FIRST = 0; // for X and Y
+const CELL_CENTER = 1; // for X and Y
+const CELL_LAST = 2; // for X and Y
+
 /**
  * Tries to find all legal moves and score them.
  * @param gameState Reference to game state.
@@ -32,7 +36,7 @@ export function resolveAllLegalMoves(gameState: Ref<GameState>, who: EnCellState
   const legalMoves: LegalMove[] = []; // empty array
   for (let x = 0; x < gameFundProp.boardSize; x++) {
     for (let y = 0; y < gameFundProp.boardSize; y++) {
-      if (gameState.value.board.cells[x]![y] != EnCellState.Empty) continue; // Any empty cell is legal move.
+      if (gameState.value.board.cells[x]![y] !== EnCellState.Empty) continue; // Any empty cell is legal move.
       const legalMove = resolveLegalMove(gameState, who, x, y, miniMaxResult);
       legalMoves.push(legalMove);
     }
@@ -76,7 +80,8 @@ function resolveMiniMaxScore(miniMaxResult : MiniMaxResult | null, x: number, y:
   // No miniMax result present or no moves available.
   if (miniMaxResult === null || miniMaxResult.moves.length === 0) return null;
 
-  if (x === miniMaxResult.moves[0]?.x && y === miniMaxResult.moves[0]?.y) return miniMaxResult.score;
+  const bestMove = miniMaxResult.moves[0]; // get first move
+  if (bestMove && x === bestMove.x && y === bestMove.y) return miniMaxResult.score;
   return null; // MiniMax result exists, but it is not for this cell.
 }
 
@@ -106,35 +111,26 @@ function fillMoveProps(gameState: Ref<GameState>, moveProps: MoveProps, who: EnC
  */
 function calcWin(board: EnCellState[][], who: EnCellState, x: number, y: number): boolean {
   // check horizontal line
-  const otherX1 = x === 1 ? 0 : 1;
-  const otherX2 = x === 2 ? 0 : 2;
+  const [otherX1, otherX2] = getOtherPositions(x);
   if (board[otherX1]![y] === who && board[otherX2]![y] === who) return true;
 
   // check vertical line
-  const otherY1 = y === 1 ? 0 : 1;
-  const otherY2 = y === 2 ? 0 : 2;
+  const [otherY1, otherY2] = getOtherPositions(y);
   if (board[x]![otherY1] === who && board[x]![otherY2] === who) return true;
 
-  // check diagonal / line: coords 0,2 and 1,1 and 2,0
-  if ((x === 0 && y === 2) || (x === 1 && y === 1) || (x === 2 && y === 0)) {
-    const crossX1 = x === 0 ? 1 : 0;
-    const crossY1 = y === 2 ? 1 : 2;
-    const crossX2 = x === 2 ? 1 : 2;
-    const crossY2 = y === 0 ? 1 : 0;
-    if (board[crossX1]![crossY1] === who && board[crossX2]![crossY2] === who) return true;
+  // check diagonal \ line: coords 0,0 and 1,1 and 2,2
+  if (isOnForwardDiagonal(x, y)) {
+    const [diagonal1, diagonal2] = getForwardDiagonalPositions(x);
+    if (board[diagonal1]![diagonal1] === who && board[diagonal2]![diagonal2] === who) return true;
   }
 
-  // check backward diagonal \ line: coords 0,0 and 1,1 and 2,2
-  if (x === y) {
-    const cross1 = x === 1 ? 0 : 1;
-    const cross2 = x === 2 ? 0 : 2;
-    if (board[cross1]![cross1] === who && board[cross2]![cross2] === who) return true;
+  // check backward diagonal / line: coords 0,2 and 1,1 and 2,0
+  if (isOnBackwardDiagonal(x, y)) {
+    const [diagonalX1, diagonalY1, diagonalX2, diagonalY2] = getBackwardDiagonalPositions(x, y);
+    if (board[diagonalX1]![diagonalY1] === who && board[diagonalX2]![diagonalY2] === who) return true;
   }
-
   return false;
 }
-
-//
 
 /**
  * Count X/O that are lined up with this move.
@@ -155,39 +151,96 @@ function calcLineUp(board: EnCellState[][], who: EnCellState, x: number, y: numb
   let lineUpCount = 0;
   // Note code is similar to calcWin().
   // check horizontal line
-  const otherX1 = x === 1 ? 0 : 1;
-  const otherX2 = x === 2 ? 0 : 2;
+  const [otherX1, otherX2] = getOtherPositions(x);
   lineUpCount += checkLineUp(who, board[otherX1]![y]!, board[otherX2]![y]!);
 
   // check vertical line
-  const otherY1 = y === 1 ? 0 : 1;
-  const otherY2 = y === 2 ? 0 : 2;
+  const [otherY1, otherY2] = getOtherPositions(y);
   lineUpCount += checkLineUp(who, board[x]![otherY1]!, board[x]![otherY2]!);
 
-  // check cross /: coords 0,2 and 1,1 and 2,0
-  if ((x === 0 && y === 2) || (x === 1 && y === 1) || (x === 2 && y === 0)) {
-    const crossX1 = x === 0 ? 1 : 0;
-    const crossY1 = y === 2 ? 1 : 2;
-    const crossX2 = x === 2 ? 1 : 2;
-    const crossY2 = y === 0 ? 1 : 0;
-    lineUpCount += checkLineUp(who, board[crossX1]![crossY1]!, board[crossX2]![crossY2]!);
+  // check diagonal \: coords 0,0 and 1,1 and 2,2
+  if (isOnForwardDiagonal(x, y)) {
+    const [diagonal1, diagonal2] = getForwardDiagonalPositions(x);
+    lineUpCount += checkLineUp(who, board[diagonal1]![diagonal1]!, board[diagonal2]![diagonal2]!);
   }
 
-  // check cross \: coords 0,0 and 1,1 and 2,2
-  if (x === y) {
-    const cross1 = x === 1 ? 0 : 1;
-    const cross2 = x === 2 ? 0 : 2;
-    lineUpCount += checkLineUp(who, board[cross1]![cross1]!, board[cross2]![cross2]!);
+  // check backward diagonal /: coords 0,2 and 1,1 and 2,0
+  if (isOnBackwardDiagonal(x, y)) {
+    const [diagonalX1, diagonalY1, diagonalX2, diagonalY2] = getBackwardDiagonalPositions(x, y);
+    lineUpCount += checkLineUp(who, board[diagonalX1]![diagonalY1]!, board[diagonalX2]![diagonalY2]!);
   }
   return lineUpCount;
 }
 
 /**
- * Counts line up at given line (horizontal, vertical or cross).
+ * Resolves other positions given some position so all positions will always have 0, 1 and 2.
+ * Cases:
+ * - pos === 0 will return 1 and 2. Together 0, 1, 2.
+ * - pos === 1 will return 0 and 2. Together 0, 1, 2.
+ * - pos === 2 will return 0 and 1. Together 0, 1, 2.
+ * @param pos Position on line. Allowed 0, 1 or 2.
+ * @returns Two other positions that compliment given position.
+ */
+function getOtherPositions(pos: number): [number, number] {
+  if (pos == CELL_FIRST) return [CELL_CENTER, CELL_LAST];
+  if (pos == CELL_CENTER) return [CELL_FIRST, CELL_LAST];
+  return [CELL_FIRST, CELL_CENTER];
+}
+
+/**
+ * Resolves other positions for forward diagonal given some position.
+ * @param pos Position on line. Allowed 0, 1 or 2.
+ * @returns Two other coordinates that with given coordinate make forward diagonal.
+ */
+function getForwardDiagonalPositions(pos: number): [number, number] {
+  const diagonal1 = pos === CELL_CENTER ? CELL_FIRST : CELL_CENTER;
+  const diagonal2 = pos === CELL_LAST   ? CELL_FIRST : CELL_LAST;
+  return [diagonal1, diagonal2];
+}
+
+/**
+ * Resolves other positions for backward diagonal given some position.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @returns Four other coordinates that with given coordinates make backward diagonal.
+ */
+function getBackwardDiagonalPositions(x: number, y: number): [number, number, number, number] {
+  const diagonalX1 = x === CELL_FIRST ? CELL_CENTER : CELL_FIRST;
+  const diagonalX2 = x === CELL_LAST ? CELL_CENTER : CELL_LAST;
+  const diagonalY1 = y === CELL_LAST ? CELL_CENTER : CELL_LAST;
+  const diagonalY2 = y === CELL_FIRST ? CELL_CENTER : CELL_FIRST;
+  return [diagonalX1, diagonalY1, diagonalX2, diagonalY2];
+}
+
+/**
+ * Check if given coordinates are on forward diagonal.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @returns True if coordinates are on forward diagonal, otherwise false.
+ */
+function isOnForwardDiagonal(x: number, y: number): boolean {
+  return x === y;
+}
+
+/**
+ * Check if given coordinates are on backward diagonal.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @returns True if coordinates are on backward diagonal, otherwise false.
+ */
+function isOnBackwardDiagonal(x: number, y: number): boolean {
+  return (x === 0 && y === 2) || (x === 1 && y === 1) || (x === 2 && y === 0);
+}
+
+//
+
+/**
+ * Checks if two cells in a potential line (horizontal, vertical or diagonal) contain the player's
+ * marks or are empty.
  * @param who Who is making move? Crosses or naughts?
  * @param cell1 First cell of lineup.
  * @param cell2 Second cell of lineup.
- * @returns Count of lineups.
+ * @returns Returns the count of player marks found (0, 1, or 2) that are lined up.
  */
 function checkLineUp(who: EnCellState, cell1: EnCellState, cell2: EnCellState): number {
   let lineUpCount = 0;
@@ -258,7 +311,9 @@ function calcMovePoints(gameState: Ref<GameState>, move: LegalMove, pointsData: 
  */
 function calcPositionPoints(move: LegalMove, pointsData: PointsData): number {
   let points = pointsData.posBasic; // basic points for move
-  if ((move.x === 0 || move.x === 2) && (move.y === 0 || move.y === 2)) points = pointsData.posCorner; // corner position has higher reward
-  if (move.x === 1 && move.y === 1) points = pointsData.posCenter; // center position has significantly higher reward
+  if ((move.x === CELL_FIRST || move.x === CELL_LAST) && (move.y === CELL_FIRST || move.y === CELL_LAST))
+    points = pointsData.posCorner; // corner position has higher reward
+  if (move.x === CELL_CENTER && move.y === CELL_CENTER)
+    points = pointsData.posCenter; // center position has significantly higher reward
   return points;
 }
