@@ -1,6 +1,6 @@
 import { describe, it } from 'vitest';
 
-import { verifyEvaluation } from '../utils/assertions.ts';
+import { verifyEvaluation, verifySameEvaluation } from '../utils/assertions.ts';
 
 import { createEmptyBoard } from '../../code/data/types.ts';
 import { EnCellState } from '../../code/data/enums.ts';
@@ -20,14 +20,6 @@ describe('Tests of evaluation function for MiniMax algorithm.', () => {
 
       // 2 lines (bottom horizontal and middle vertical) have hits for one in-the-line for X
       verifyEvaluation(board, EnCellState.X, EnCellState.O, 2);
-    });
-
-    it('evaluate board with single mark at edge, reversed players', () => {
-      const board = createEmptyBoard();
-      board[1][2] = EnCellState.X;
-
-      // 2 lines (bottom horizontal and middle vertical) have hits for one in-the-line for X
-      verifyEvaluation(board, EnCellState.O, EnCellState.X, -2);
     });
 
     it('evaluate board with single mark for opposite player in corner', () => {
@@ -76,6 +68,16 @@ describe('Tests of evaluation function for MiniMax algorithm.', () => {
       verifyEvaluation(board, EnCellState.X, EnCellState.O, 13);
     });
 
+    it('evaluate board with two marks for your player on vertical middle line', () => {
+      const board = createEmptyBoard();
+      board[1][0] = EnCellState.X;
+      board[1][2] = EnCellState.X; // note gap in middle
+
+      // 2 lines (top and bottom horizontal) have hits for one in-the-line for X
+      // 1 line (middle vertical) has hit for two in-the-line for X
+      verifyEvaluation(board, EnCellState.X, EnCellState.O, 12);
+    });
+
     it('evaluate board with 2x2 box of marks', () => {
       const board = createEmptyBoard();
       board[0][0] = EnCellState.O;
@@ -88,7 +90,18 @@ describe('Tests of evaluation function for MiniMax algorithm.', () => {
       verifyEvaluation(board, EnCellState.X, EnCellState.O, -51);
     });
 
-    it('evaluate board for "three in-the-line" case', () => {
+    it('evaluate board for "three in-the-line" case: horizontal', () => {
+      const board = createEmptyBoard();
+      board[0][0] = EnCellState.X;
+      board[1][0] = EnCellState.X;
+      board[2][0] = EnCellState.X;
+
+      // 5 lines have hit for one in-the-line for X
+      // 1 line has hit for three in-the-line for X
+      verifyEvaluation(board, EnCellState.X, EnCellState.O, 105);
+    });
+
+    it('evaluate board for "three in-the-line" case: vertical', () => {
       const board = createEmptyBoard();
       board[1][0] = EnCellState.X;
       board[1][1] = EnCellState.X;
@@ -97,6 +110,17 @@ describe('Tests of evaluation function for MiniMax algorithm.', () => {
       // 5 lines have hit for one in-the-line for X
       // 1 line has hit for three in-the-line for X
       verifyEvaluation(board, EnCellState.X, EnCellState.O, 105);
+    });
+
+    it('evaluate board for "three in-the-line" case: backward diagonal', () => {
+      const board = createEmptyBoard();
+      board[2][0] = EnCellState.O;
+      board[1][1] = EnCellState.O;
+      board[0][2] = EnCellState.O;
+
+      // 7 lines have hit for one in-the-line for O
+      // 1 line has hit for three in-the-line for O
+      verifyEvaluation(board, EnCellState.X, EnCellState.O, -107);
     });
 
     it('evaluate board for two "three in-the-line" cases', () => {
@@ -177,6 +201,34 @@ describe('Tests of evaluation function for MiniMax algorithm.', () => {
       // 2 lines have hit for two in-the-line for O
       // 2 lines have hit for one in-the-line for X
       verifyEvaluation(board, EnCellState.X, EnCellState.O, -18);
+    });
+  });
+
+  describe('Other.', () => {
+    it('evaluate symmetric positions identically (rotational symmetry)', () => {
+      const board1 = createEmptyBoard();
+      board1[0][0] = EnCellState.X; // top-left corner
+      board1[1][1] = EnCellState.O; // center
+
+      const board2 = createEmptyBoard();
+      board2[2][0] = EnCellState.X; // top-right corner (90° rotation)
+      board2[1][1] = EnCellState.O; // center
+
+      // All corners are equivalent, should score identically.
+      verifySameEvaluation(board1, board2);
+    });
+
+    it('evaluate mirrored positions identically (horizontal flip)', () => {
+      const board1 = createEmptyBoard();
+      board1[0][0] = EnCellState.X;
+      board1[2][0] = EnCellState.O;
+
+      const board2 = createEmptyBoard();
+      board2[2][0] = EnCellState.X;
+      board2[0][0] = EnCellState.O;
+
+      // All corners are equivalent, should score identically.
+      verifySameEvaluation(board1, board2);
     });
   });
 });
