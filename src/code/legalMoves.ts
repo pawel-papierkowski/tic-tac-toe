@@ -1,11 +1,15 @@
 /**
- * Naive implementation of Tic-Tac-Toe AI.
+ * Implementation of Tic-Tac-Toe AI and moves.
+ * Has two parts: resolving best move via miniMax algo and resolving basic facts about move
+ * (is this win, is this immediate fork, how many marks are lined up). All of these contribute to score
+ * in way that allows implementation of difficulty levels.
+ * Note miniMax algorithm itself is implemented in separate file.
  */
 import type { Ref } from 'vue';
 import type { GameState, LegalMove, PointsData, MoveProps, MiniMaxResult } from '@/code/data/types.ts';
 import { createLegalMove } from '@/code/data/types.ts';
 import { EnCellState, EnDifficulty } from '@/code/data/enums.ts';
-import { defScoringData, weightData, gameConfig, miniMaxScoring } from '@/code/data/data.ts'; // cellStateDescr
+import { defScoringData, weightData, gameConfig, gameFundProp, miniMaxScoring } from '@/code/data/data.ts'; // cellStateDescr
 import { resolveMiniMax } from '@/code/miniMax.ts';
 
 /**
@@ -17,15 +21,17 @@ import { resolveMiniMax } from '@/code/miniMax.ts';
 export function resolveAllLegalMoves(gameState: Ref<GameState>, who: EnCellState): LegalMove[] {
   let miniMaxResult : MiniMaxResult | null = null;
   if (gameState.value.settings.difficulty !== EnDifficulty.Easy || gameState.value.debugSettings.debugMode) {
-    // Find out best move according to MiniMax algorithm.
+    // Find out best move according to MiniMax algorithm. It will contribute to score/weight for
+    // lower difficulties and it will be the score on impossible difficulty.
+    // Easy is excluded because on this difficulty moves are chosen completely randomly.
     miniMaxResult = resolveMiniMax(who, gameConfig.maxDepth, gameState.value.board.cells);
   }
 
   // Game is simple enough that we can just brute-force it.
   // Find all legal moves and assign scoring data to each one.
   const legalMoves: LegalMove[] = []; // empty array
-  for (let x = 0; x < 3; x++) {
-    for (let y = 0; y < 3; y++) {
+  for (let x = 0; x < gameFundProp.boardSize; x++) {
+    for (let y = 0; y < gameFundProp.boardSize; y++) {
       if (gameState.value.board.cells[x]![y] != EnCellState.Empty) continue; // Any empty cell is legal move.
       const legalMove = resolveLegalMove(gameState, who, x, y, miniMaxResult);
       legalMoves.push(legalMove);
@@ -52,10 +58,10 @@ export function resolveLegalMove(gameState: Ref<GameState>, who: EnCellState, x:
   const otherWho: EnCellState = who === EnCellState.X ? EnCellState.O : EnCellState.X;
   fillMoveProps(gameState, legalMove.oppProps, otherWho, x, y);
 
-  // final scoring/weighting
+  // final scoring/weighting based on props, miniMax and other data
   legalMove.miniMax = resolveMiniMaxScore(miniMaxResult, x, y);
   legalMove.score = calcMovePoints(gameState, legalMove, defScoringData);
-  legalMove.weight = calcMovePoints(gameState, legalMove, weightData[gameState.value.settings.difficulty]); // note in many cases score === weight
+  legalMove.weight = calcMovePoints(gameState, legalMove, weightData[gameState.value.settings.difficulty]);
   return legalMove;
 }
 
@@ -64,7 +70,7 @@ export function resolveLegalMove(gameState: Ref<GameState>, who: EnCellState, x:
  * @param miniMaxResult MiniMax result.
  * @param x X coordinate of cell.
  * @param y Y coordinate of cell.
- * @returns MiniMax score, if any, or 0 if no score for any reason.
+ * @returns MiniMax score, if any, or null if no miniMax score for any reason.
  */
 function resolveMiniMaxScore(miniMaxResult : MiniMaxResult | null, x: number, y: number) : number | null {
   // No miniMax result present or no moves available.
@@ -76,7 +82,6 @@ function resolveMiniMaxScore(miniMaxResult : MiniMaxResult | null, x: number, y:
 
 /**
  * Fill move properties.
- * @param you If true, move properties are calculated for you, otherwise for opponent.
  * @param gameState Reference to game state.
  * @param moveProps Move properties to fill.
  * @param who Who is making move? Crosses or naughts?
@@ -119,7 +124,7 @@ function calcWin(board: EnCellState[][], who: EnCellState, x: number, y: number)
     if (board[crossX1]![crossY1] === who && board[crossX2]![crossY2] === who) return true;
   }
 
-  // check diagonal \ line: coords 0,0 and 1,1 and 2,2
+  // check backward diagonal \ line: coords 0,0 and 1,1 and 2,2
   if (x === y) {
     const cross1 = x === 1 ? 0 : 1;
     const cross2 = x === 2 ? 0 : 2;
@@ -137,8 +142,9 @@ function calcWin(board: EnCellState[][], who: EnCellState, x: number, y: number)
  * ??X
  * ???
  * X?X
- * For move 0,0 you will get value of lineUp 3 (three X's). For 0,1 or 1,0 move you will get lineUp = 1.
- * Note lineup counts only if cells on line are either empty or your marks.
+ * For move 0,0 you will get value of lineUp 3 (three X's are lined up).
+ * For 0,1 or 1,0 move you will get lineUp = 1.
+ * Note lineup counts only if all cells on line are either empty or your marks.
  * @param board Game board.
  * @param who Who is making move? Crosses or naughts?
  * @param x X coordinate of cell.
@@ -193,7 +199,7 @@ function checkLineUp(who: EnCellState, cell1: EnCellState, cell2: EnCellState): 
 }
 
 /**
- * Detect if this move will produce immediate fork for you.
+ * Detect if this move will produce immediate fork.
  * @param moveProps Move properties.
  * @returns True if fork is created with this move, otherwise false.
  */
@@ -223,7 +229,8 @@ function calcFork(moveProps: MoveProps): boolean {
  */
 function calcMovePoints(gameState: Ref<GameState>, move: LegalMove, pointsData: PointsData): number {
   if (gameState.value.settings.difficulty === EnDifficulty.Impossible) {
-    // Impossible difficulty always uses MiniMax algorithm. One move is selected, rest must not be chosen.
+    // Impossible difficulty always uses MiniMax algorithm.
+    // One move was selected (miniMax is not null). Rest cannot be chosen, so put large negative score.
     return move.miniMax ?? -miniMaxScoring.max;
   }
 
@@ -234,7 +241,7 @@ function calcMovePoints(gameState: Ref<GameState>, move: LegalMove, pointsData: 
   // Fork bonus.
   if (move.props.fork) points += pointsData.bonusFork; // faciliate your fork
   if (move.oppProps.fork) points += pointsData.bonusPreventFork; // prevent opponent's fork
-  // Minimax bonus. On difficulties other than impossible, MiniMax merely makes this move more likely.
+  // Minimax bonus. On difficulties other than impossible, miniMax merely makes this move more likely.
   if (move.miniMax !== null) points += move.miniMax*pointsData.mulMiniMax;
 
   // Win checks for you and opponent.

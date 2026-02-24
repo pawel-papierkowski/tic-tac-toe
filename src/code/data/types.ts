@@ -65,7 +65,7 @@ export type StrikeData = {
   diffEnd: Position; // slight randomisation of ending position in pixels
 };
 
-function createStrikeData(): StrikeData {
+export function createStrikeData(): StrikeData {
   return {
     present: false,
     start: { x: 0, y: 0 },

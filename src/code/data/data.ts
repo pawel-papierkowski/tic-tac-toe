@@ -8,6 +8,7 @@ type GameFundProp = {
   author: string;
   version: string;
   build: string;
+  boardSize: number;
 };
 
 export const gameFundProp: GameFundProp = {
@@ -15,6 +16,7 @@ export const gameFundProp: GameFundProp = {
   author: "Paweł Papierkowski",
   version: import.meta.env.VITE_APP_VERSION, // from package.json
   build: import.meta.env.DEV ? "DEV" : "PROD",
+  boardSize: 3,
 }
 
 /** General configuration of game. */

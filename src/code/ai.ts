@@ -1,6 +1,9 @@
 import type { Ref } from 'vue';
 import type { GameState, LegalMove } from './data/types.ts';
+import { createStrikeData } from './data/types.ts';
 import { EnDifficulty, EnWhoFirst, EnGameStatus, EnCellState, EnPlayerType } from '@/code/data/enums.ts';
+import { gameFundProp } from './data/data.ts';
+import { resolvePlayerSymbol } from '@/code/common.ts';
 import { resolveAllLegalMoves } from '@/code/legalMoves.ts';
 import { fillDebugData } from '@/code/debug.ts';
 
@@ -10,8 +13,7 @@ import { fillDebugData } from '@/code/debug.ts';
  * @param gameState Reference to game state.
  */
 export function moveAi(gameState: Ref<GameState>) {
-  const who: EnCellState = // first player uses crosses, second player uses naughts
-    gameState.value.board.firstPlayer === gameState.value.board.currentPlayer ? EnCellState.X : EnCellState.O;
+  const who = resolvePlayerSymbol(gameState);
   const legalMoves = resolveAllLegalMoves(gameState, who);
 
   if (legalMoves.length === 0) { // no legal moves found, we have draw
@@ -220,23 +222,26 @@ function reactOnDraw(gameState: Ref<GameState>) {
   gameState.value.statistics.tiesInRow++;
   gameState.value.statistics.aiWinInRow = 0;
   gameState.value.statistics.humanWinInRow = 0;
+  gameState.value.statistics.human1WinInRow = 0;
+  gameState.value.statistics.human2WinInRow = 0;
 }
 
 //
 
 /**
- * Check state of board and see if there are any three cells with same X or O state in row, column or across.
+ * Check state of board and see if there are any three cells with same X or O state in row, column or diagonally.
  * @param gameState Reference to game state.
  */
 export function checkWinState(gameState: Ref<GameState>): boolean {
   // Game is simple enough that we can just check all possibilities manually.
+  gameState.value.board.strike = createStrikeData(); // reset strike data
   gameState.value.board.strike.present = true; // how optimistic
 
-  // first all cases from upper left corner (horizontal line, vertical line and cross)
+  // first all cases from upper left corner (up horizontal line, left vertical line and diagonal)
   if (checkUpLeftCorner(gameState)) return true;
-  // now middle horizontal/vertical line and backward cross
+  // now middle horizontal/vertical line and backward diagonal
   if (checkCenter(gameState)) return true;
-  // last is horizontal/vertical line at end
+  // last is bottom horizontal line and right vertical line
   if (checkBottomRightCorner(gameState)) return true;
 
   gameState.value.board.strike.present = false;
@@ -266,7 +271,7 @@ function checkUpLeftCorner(gameState: Ref<GameState>): boolean {
   }
 
   if (gameState.value.board.cells[1]![1] === cellState && gameState.value.board.cells[2]![2] === cellState) {
-    // cross
+    // diagonal
     gameState.value.board.strike.end.x = 2; // X??
     gameState.value.board.strike.end.y = 2; // ?X?
     //                                         ??X
@@ -300,7 +305,7 @@ function checkCenter(gameState: Ref<GameState>): boolean {
   }
 
   if (gameState.value.board.cells[2]![0] === cellState && gameState.value.board.cells[0]![2] === cellState) {
-    // cross
+    // backwards diagonal
     gameState.value.board.strike.start.x = 2;
     gameState.value.board.strike.start.y = 0;
     gameState.value.board.strike.end.x = 0; // ??X
@@ -342,9 +347,9 @@ function checkBottomRightCorner(gameState: Ref<GameState>): boolean {
  * @returns True if we have draw, otherwise false.
  */
 export function checkDrawState(gameState: Ref<GameState>): boolean {
-  for (let x = 0; x < 3; x++) {
-    for (let y = 0; y < 3; y++) {
-      if (gameState.value.board.cells[x]![y] != EnCellState.Empty) continue;
+  for (let x = 0; x < gameFundProp.boardSize; x++) {
+    for (let y = 0; y < gameFundProp.boardSize; y++) {
+      if (gameState.value.board.cells[x]![y] !== EnCellState.Empty) continue;
       // Any empty cell is legal move. That also means there is no draw.
       return false;
     }

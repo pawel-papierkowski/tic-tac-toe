@@ -2,8 +2,8 @@ import { type Ref, nextTick } from 'vue';
 import type { GameState } from '@/code/data/types.ts';
 import { createGameStatistics, createGameBoard, createLegalMove } from '@/code/data/types.ts';
 import { EnWhoFirst, EnGameStatus, EnCellState, EnPlayerType } from '@/code/data/enums.ts';
-import { gameConfig } from '@/code/data/data.ts';
-import { delay } from '@/code/common.ts';
+import { gameConfig, gameFundProp } from '@/code/data/data.ts';
+import { resolvePlayerSymbol, delay } from '@/code/common.ts';
 import { executeMove, moveAi } from '@/code/ai.ts';
 import { fillDebugData } from '@/code/debug.ts';
 
@@ -68,16 +68,13 @@ export function prepareNextRound(gameState: Ref<GameState>) {
  * @param gameState Reference to game state.
  */
 export async function humanMove(gameState: Ref<GameState>, cellValue: EnCellState, x: number, y: number) {
-  if (x < 0 || x >= 3 || y < 0 || y >= 3) return; // reject invalid x/y range
+  if (x < 0 || x >= gameFundProp.boardSize || y < 0 || y >= gameFundProp.boardSize) return; // reject invalid x/y range
   if (gameState.value.board.status !== EnGameStatus.InProgress) return; // only if game is in progress
   if (gameState.value.settings.whoFirst !== EnWhoFirst.HumanVsHuman &&
       gameState.value.board.currentPlayer !== EnPlayerType.Human) return; // only if it is human's turn
   if (cellValue !== EnCellState.Empty) return; // empty cell only
 
-  // First player always uses crosses, second player always uses naughts.
-  const who: EnCellState = gameState.value.board.firstPlayer === gameState.value.board.currentPlayer ?
-    EnCellState.X : EnCellState.O;
-
+  const who = resolvePlayerSymbol(gameState);
   const humanMove = createLegalMove(who, x, y);
   executeMove(gameState, humanMove); // here we change currentPlayer (unless win/tie happened)
   fillDebugData(gameState);
