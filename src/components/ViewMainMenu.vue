@@ -4,7 +4,7 @@ import { nextTick } from 'vue';
 import { type GameState } from '@/code/data/types.ts';
 import { EnPlayerType, EnWhoFirst } from '@/code/data/enums.ts';
 import { difficultyDescr, whoFirstDescr, gameConfig } from '@/code/data/data.ts';
-import { changeScreen } from '@/code/common.ts';
+import { changeScreen, delay } from '@/code/common.ts';
 import { prepareNewGame } from '@/code/ticTacToe.ts';
 import { moveAi } from '@/code/ai.ts';
 import { fillDebugData } from '@/code/debug.ts';
@@ -19,7 +19,7 @@ async function startGame() {
   await nextTick(); // Wait for Vue to update the DOM.
 
   if (gameState.value.board.firstPlayer === EnPlayerType.AI) {
-    await new Promise((resolve) => setTimeout(resolve, gameConfig.aiWait)); // Delay for visual effect...
+    await delay(gameConfig.aiWait); // Delay for visual effect...
     moveAi(gameState); // THEN execute AI move.
     await nextTick(); // Wait for Vue to update the DOM.
   }

@@ -1,7 +1,6 @@
 import type { Ref } from 'vue';
 import type { GameState, LegalMove } from './data/types.ts';
 import { EnDifficulty, EnWhoFirst, EnGameStatus, EnCellState, EnPlayerType } from '@/code/data/enums.ts';
-import { playerTypeDescr } from '@/code/data/data.ts';
 import { resolveAllLegalMoves } from '@/code/legalMoves.ts';
 import { fillDebugData } from '@/code/debug.ts';
 
@@ -128,7 +127,7 @@ function pickHighestScore(legalMoves: LegalMove[]): LegalMove {
       bestMoves.push(legalMove);
     }
   }
-  console.log(`Found ${bestMoves.length} best move(s) with score ${bestScore}.`);
+
   if (bestMoves.length === 1) return bestMoves[0]!; // found only one move with best score
   // pick one of best moves if more than one
   const index = Math.floor(Math.random() * bestMoves.length);
@@ -149,12 +148,10 @@ export function executeMove(gameState: Ref<GameState>, move: LegalMove) {
     console.error(`Tried to execute illegal move! X: ${move.x}, Y: ${move.y}`);
     return;
   }
-  console.log(`executeMove(): x=${move.x}, y=${move.y}.`);
   gameState.value.board.cells[move.x]![move.y] = move.who;
 
   // Check if win state was achieved.
   if (checkWinState(gameState)) {
-    console.log(`Win state detected for ${playerTypeDescr[gameState.value.board.currentPlayer]}.`);
     reactOnWin(gameState);
     return;
   }

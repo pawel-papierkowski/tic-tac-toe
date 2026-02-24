@@ -31,8 +31,6 @@ export function resolveAllLegalMoves(gameState: Ref<GameState>, who: EnCellState
       legalMoves.push(legalMove);
     }
   }
-
-  //console.log(`resolveAllLegalMoves() called by ${cellStateDescr[who]}. ${legalMoves.length} move(s) found.`);
   return legalMoves;
 }
 

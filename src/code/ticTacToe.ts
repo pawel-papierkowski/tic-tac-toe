@@ -3,6 +3,7 @@ import type { GameState } from '@/code/data/types.ts';
 import { createGameStatistics, createGameBoard, createLegalMove } from '@/code/data/types.ts';
 import { EnWhoFirst, EnGameStatus, EnCellState, EnPlayerType } from '@/code/data/enums.ts';
 import { gameConfig } from '@/code/data/data.ts';
+import { delay } from '@/code/common.ts';
 import { executeMove, moveAi } from '@/code/ai.ts';
 import { fillDebugData } from '@/code/debug.ts';
 
@@ -13,7 +14,7 @@ import { fillDebugData } from '@/code/debug.ts';
 export function prepareNewGame(gameState: Ref<GameState>) {
   gameState.value.statistics = createGameStatistics(); // reset statistics
   prepareNextRound(gameState);
-  prepareDebug(gameState);
+  prepareDebug(gameState); // must be called last
 }
 
 /**
@@ -43,7 +44,7 @@ function prepareDebug(gameState: Ref<GameState>) {
 export function prepareNextRound(gameState: Ref<GameState>) {
   gameState.value.board = createGameBoard(); // reset board
   switch (gameState.value.settings.whoFirst) {
-    case EnWhoFirst.Random:
+    case EnWhoFirst.Random: // in this case AI and Human have same chance of being selected (50%)
       gameState.value.board.firstPlayer = Math.random() >= 0.5 ? EnPlayerType.AI : EnPlayerType.Human;
       break;
     case EnWhoFirst.Human:
@@ -67,16 +68,15 @@ export function prepareNextRound(gameState: Ref<GameState>) {
  * @param gameState Reference to game state.
  */
 export async function humanMove(gameState: Ref<GameState>, cellValue: EnCellState, x: number, y: number) {
+  if (x < 0 || x >= 3 || y < 0 || y >= 3) return; // reject invalid x/y range
   if (gameState.value.board.status !== EnGameStatus.InProgress) return; // only if game is in progress
-  if (
-    gameState.value.settings.whoFirst !== EnWhoFirst.HumanVsHuman &&
-    gameState.value.board.currentPlayer !== EnPlayerType.Human
-  )
-    return; // only if it is human's turn
+  if (gameState.value.settings.whoFirst !== EnWhoFirst.HumanVsHuman &&
+      gameState.value.board.currentPlayer !== EnPlayerType.Human) return; // only if it is human's turn
   if (cellValue !== EnCellState.Empty) return; // empty cell only
 
-  const who: EnCellState = // first player always uses crosses, second player uses naughts
-    gameState.value.board.firstPlayer === gameState.value.board.currentPlayer ? EnCellState.X : EnCellState.O;
+  // First player always uses crosses, second player always uses naughts.
+  const who: EnCellState = gameState.value.board.firstPlayer === gameState.value.board.currentPlayer ?
+    EnCellState.X : EnCellState.O;
 
   const humanMove = createLegalMove(who, x, y);
   executeMove(gameState, humanMove); // here we change currentPlayer (unless win/tie happened)
@@ -85,7 +85,7 @@ export async function humanMove(gameState: Ref<GameState>, cellValue: EnCellStat
   await nextTick(); // Wait for Vue to update the DOM.
 
   if (gameState.value.board.currentPlayer === EnPlayerType.AI) {
-    await new Promise((resolve) => setTimeout(resolve, gameConfig.aiWait)); // Delay for visual effect...
+    await delay(gameConfig.aiWait); // Delay for visual effect...
     moveAi(gameState); // THEN execute AI move.
     await nextTick(); // Wait for Vue to update the DOM.
   }

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, nextTick } from 'vue';
-import { useWindowSize } from '@vueuse/core'; // refDebounced
+import { useWindowSize } from '@vueuse/core';
 
 import { type GameState } from '@/code/data/types.ts';
 import { EnGameStatus, EnPlayerType } from '@/code/data/enums.ts';
 import { gameConfig } from '@/code/data/data.ts';
-import { changeScreen } from '@/code/common.ts';
+import { changeScreen, delay } from '@/code/common.ts';
 import { prepareNextRound } from '@/code/ticTacToe.ts';
 import { calcStrikeLineStyle } from '@/code/lineStrike.ts';
 import { moveAi } from '@/code/ai.ts';
@@ -16,11 +16,7 @@ import GameStatus from '@/components/GameStatus.vue';
 import TicTacToeCell from '@/components/TicTacToeCell.vue';
 
 const gameState = defineModel<GameState>({ required: true });
-
 const { width, height } = useWindowSize();
-// we do not use debouncing since drawing delay looks crappy
-//const debouncedWidth = refDebounced(width, 50);
-//const debouncedHeight = refDebounced(height, 50);
 
 // calcStrikeLineStyle() is called when data change or window is resized
 const lineStyle = computed(() => {
@@ -58,7 +54,7 @@ async function nextRound() {
   await nextTick(); // Wait for Vue to update the DOM.
 
   if (gameState.value.board.firstPlayer == EnPlayerType.AI) {
-    await new Promise((resolve) => setTimeout(resolve, gameConfig.aiWait)); // Delay for visual effect...
+    await delay(gameConfig.aiWait); // Delay for visual effect...
     moveAi(gameState); // THEN execute AI move.
     await nextTick(); // Wait for Vue to update the DOM.
   } else {

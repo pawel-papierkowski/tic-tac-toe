@@ -28,6 +28,11 @@ export function fillDebugData(gameState: Ref<GameState>) {
   }
 }
 
+/**
+ * Determines who is who. First player is always crosses, second player is always naughts.
+ * @param gameState Reference to game state.
+ * @returns Crosses or naughts.
+ */
 function whoAmI(gameState: Ref<GameState>): EnCellState {
   const debugPlayer = gameState.value.board.debug.debugPlayer1;
   return gameState.value.board.firstPlayer === debugPlayer ? EnCellState.X : EnCellState.O;

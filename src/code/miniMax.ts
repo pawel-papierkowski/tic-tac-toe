@@ -31,7 +31,7 @@ import { cellStateDescr, miniMaxScoring, line3array } from '@/code/data/data.ts'
 export function resolveMiniMax(who: EnCellState, maxDepth: number, board: EnCellState[][]): MiniMaxResult {
   // Starting data for beginning of recursive chain.
   const miniMaxResult = recursiveMiniMax(who, true, 0, maxDepth, board, []);
-  console.log("Found move: ", miniMaxResult);
+  //console.log("Found move: ", miniMaxResult);
   return miniMaxResult;
 }
 

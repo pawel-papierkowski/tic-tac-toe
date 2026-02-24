@@ -78,7 +78,7 @@ function createStrikeData(): StrikeData {
 export type DebugCell = {
   score: number;
   weight: number;
-  miniMax: number;
+  miniMax: number | null;
   props: MoveProps;
   oppProps: MoveProps;
 };
