@@ -7,14 +7,15 @@ import ViewMainMenu from '@/components/ViewMainMenu.vue';
 import ViewTicTacToe from '@/components/ViewTicTacToe.vue';
 
 onMounted(async () => {
-  //await preloadImages();
+  //await _preloadImages();
 });
 
 // Default game state.
 const gameState = ref<GameState>(createGameState());
 
-// Preload images - should solve Firefox issue with images that show delayed.
-async function preloadImages() {
+// Preload images - we want to solve Firefox issue with images that show delayed.
+// Note: does not seem to impact anything, be it delay or warnings in console about preloaded <link>s.
+async function _preloadImages() {
   const base = import.meta.env.BASE_URL;
   const images = ['/cell_2.svg', '/cell_3.svg'];
 
