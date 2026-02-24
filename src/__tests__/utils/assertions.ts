@@ -2,7 +2,7 @@ import { expect } from 'vitest';
 
 import { EnCellState } from '../../code/data/enums.ts';
 import type { LegalMove, StrikeData, MiniMaxResult } from '../../code/data/types.ts';
-import { resolveMiniMax } from '../../code/miniMax.ts';
+import { resolveMiniMax, evaluate } from '../../code/miniMax.ts';
 
 export function assertMove(actual: LegalMove, expected: LegalMove) {
   expect(actual, `LegalMove mismatch`).toEqual(expected);
@@ -15,6 +15,11 @@ export function assertWinState(actualStrike: StrikeData, expectedStrike: Partial
 }
 
 export function assertEvaluation(actualScore: number, expectedScore: number) {
+  expect(actualScore, `Evaluated score mismatch.`).toBe(expectedScore);
+}
+
+export function verifyEvaluation(board: EnCellState[][], whoYou: EnCellState, whoOpponent: EnCellState, expectedScore: number) {
+  const actualScore = evaluate(whoYou, whoOpponent, board);
   expect(actualScore, `Evaluated score mismatch.`).toBe(expectedScore);
 }
 

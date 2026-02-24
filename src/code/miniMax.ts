@@ -14,12 +14,10 @@
  * more or less likely.
  * For impossible difficulty, minimax score is THE score.
  */
-import type { Position } from '@vueuse/core';
-
-import type { Line3, MiniMaxResult } from '@/code/data/types.ts';
+import type { Line3, MiniMaxResult, Coordinate } from '@/code/data/types.ts';
 import { createMiniMaxResult } from '@/code/data/types.ts';
 import { EnCellState } from '@/code/data/enums.ts';
-import { cellStateDescr, miniMaxScoring, line3array } from '@/code/data/data.ts'; //cellStateDescr
+import { gameFundProp, cellStateDescr, miniMaxScoring, line3array } from '@/code/data/data.ts';
 
 /**
  * Resolve minimax score based of given state of board.
@@ -45,7 +43,7 @@ export function resolveMiniMax(who: EnCellState, maxDepth: number, board: EnCell
  * @param moves Moves made so far.
  * @returns MiniMax result.
  */
-function recursiveMiniMax(who: EnCellState, isYou : boolean, currDepth: number, maxDepth: number, board: EnCellState[][], moves: Position[]) : MiniMaxResult {
+function recursiveMiniMax(who: EnCellState, isYou : boolean, currDepth: number, maxDepth: number, board: EnCellState[][], moves: Coordinate[]) : MiniMaxResult {
   //_printRecursiveMiniMax(who, isYou, currDepth, maxDepth, board, moves);
   const otherWho = who === EnCellState.X ? EnCellState.O : EnCellState.X;
 
@@ -67,8 +65,8 @@ function recursiveMiniMax(who: EnCellState, isYou : boolean, currDepth: number, 
   }
 
   const results : MiniMaxResult[] = [];
-  for (let nextX=0; nextX<3; nextX++) { // columns
-    for (let nextY=0; nextY<3; nextY++) { // rows
+  for (let nextX=0; nextX<gameFundProp.boardSize; nextX++) { // columns
+    for (let nextY=0; nextY<gameFundProp.boardSize; nextY++) { // rows
       if (board[nextX]![nextY] !== EnCellState.Empty) continue; // cannot make move here
 
       board[nextX]![nextY] = who; // Make move as CURRENT player.
@@ -99,21 +97,27 @@ function evaluateAllResults(results: MiniMaxResult[], isYou: boolean, currDepth:
   bestResult.depth = currDepth;
   bestResult.score = isYou ? -miniMaxScoring.max : miniMaxScoring.max;
 
-  // Make sure to pick the best score.
+  // Make sure to pick the best result.
   for (const result of results) {
-    if (isYou) { // find best result for you
-      if (result.score > bestResult.score) bestResult = result;
-      else if (result.score === bestResult.score) {
-        if (result.depth <= bestResult.depth) bestResult = result;
-      }
-    } else { // find best result for opponent
-      if (result.score < bestResult.score) bestResult = result;
-      else if (result.score === bestResult.score) {
-        if (result.depth <= bestResult.depth) bestResult = result;
-      }
-    }
+    if (isBetterResult(isYou, result, bestResult)) bestResult = result;
   }
   return bestResult;
+}
+
+/**
+ * Check if new result is better than current result.
+ * @param result New result to check.
+ * @param bestResult Current best result.
+ * @param isYou True if maximizing, otherwise it is minimizing.
+ * @returns True if given result is better than current best result, otherwise false.
+ */
+function isBetterResult( isYou: boolean, result: MiniMaxResult, bestResult: MiniMaxResult): boolean {
+  // First, tie logic: we prefer faster wins.
+  if (result.score === bestResult.score) {
+    if (result.depth <= bestResult.depth) return true;
+  }
+  // Now different score case.
+  return isYou ? result.score > bestResult.score : result.score < bestResult.score;
 }
 
 //
@@ -124,15 +128,15 @@ function evaluateAllResults(results: MiniMaxResult[], isYou: boolean, currDepth:
  * @param board Board state.
  */
 function checkWin(who: EnCellState, board: EnCellState[][]) : boolean {
-  for (let x=0; x<3; x++) { // columns
+  for (let x=0; x<gameFundProp.boardSize; x++) { // columns
     if (board[x]![0] === who && board[x]![1] === who && board[x]![2] === who) return true;
   }
-  for (let y=0; y<3; y++) { // rows
+  for (let y=0; y<gameFundProp.boardSize; y++) { // rows
     if (board[0]![y] === who && board[1]![y] === who && board[2]![y] === who) return true;
   }
   // diagonals
-    if (board[0]![0] === who && board[1]![1] === who && board[2]![2] === who) return true;
-    if (board[2]![0] === who && board[1]![1] === who && board[0]![2] === who) return true;
+  if (board[0]![0] === who && board[1]![1] === who && board[2]![2] === who) return true;
+  if (board[2]![0] === who && board[1]![1] === who && board[0]![2] === who) return true;
   return false;
 }
 
@@ -142,8 +146,8 @@ function checkWin(who: EnCellState, board: EnCellState[][]) : boolean {
  * @returns True if board is in draw state, otherwise false.
  */
 function checkDraw(board: EnCellState[][]) : boolean {
-  for (let x=0; x<3; x++) { // columns
-    for (let y=0; y<3; y++) { // rows
+  for (let x=0; x<gameFundProp.boardSize; x++) { // columns
+    for (let y=0; y<gameFundProp.boardSize; y++) { // rows
       if (board[x]![y] === EnCellState.Empty) return false; // at least one empty cell
     }
   }
@@ -198,7 +202,7 @@ function evaluateLine(whoYou: EnCellState, whoOpponent: EnCellState, board: EnCe
     else if (score > 0) return miniMaxScoring.inLine2;  // first and/or second cell is you
     else return miniMaxScoring.inLine1;
   } else if (board[line.x3]![line.y3] === whoOpponent) {
-    if (score > 0) return miniMaxScoring.other; // first and/or second cell is ayoui
+    if (score > 0) return miniMaxScoring.other; // first and/or second cell is you
     else if (score < -miniMaxScoring.inLine1) return -miniMaxScoring.inLine3; // both cells is opponent
     else if (score < 0) return -miniMaxScoring.inLine2; // first and/or second cell is opponent
     else return -miniMaxScoring.inLine1;
@@ -210,7 +214,7 @@ function evaluateLine(whoYou: EnCellState, whoOpponent: EnCellState, board: EnCe
 // DEBUG
 ////////
 
-function _printRecursiveMiniMax(who: EnCellState, isYou : boolean, currDepth: number, maxDepth: number, board: EnCellState[][], moves: Position[]) {
+function _printRecursiveMiniMax(who: EnCellState, isYou : boolean, currDepth: number, maxDepth: number, board: EnCellState[][], moves: Coordinate[]) {
   const lastX = moves[moves.length-1]?.x;
   const lastY = moves[moves.length-1]?.y;
   console.log(`recursiveMiniMax(who=${cellStateDescr[who]}, isYou=${isYou}, currDepth=${currDepth}, maxDepth=${maxDepth}) called. LastX=${lastX}, lastY=${lastY}).`);

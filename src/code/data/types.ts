@@ -1,6 +1,5 @@
 // GAME DATA
 
-import type { Position } from '@vueuse/core';
 import { EnDifficulty, EnWhoFirst, EnGameStatus, EnCellState, EnPlayerType } from '@/code/data/enums.ts';
 
 // DEBUG CONSTANTS
@@ -54,15 +53,17 @@ export function createDebugSettings(): DebugSettings {
 // Tic Tac Toe board state.
 // ////////////////////////
 
+export type Coordinate = { x: number; y: number };
+
 /**
  * If present === true, draws strikethrough line on screen from cell x1,y1 to cell x2,y2.
  */
 export type StrikeData = {
   present: boolean; // if true, line should be drawn
-  start: Position; // start position of line as x,y index of cell (0-2)
-  end: Position; // end position of line as x,y index of cell (0-2)
-  diffStart: Position; // slight randomisation of starting position so line looks more "natural" in pixels
-  diffEnd: Position; // slight randomisation of ending position in pixels
+  start: Coordinate; // start position of line as x,y index of cell (0-2)
+  end: Coordinate; // end position of line as x,y index of cell (0-2)
+  diffStart: Coordinate; // slight randomisation of starting position so line looks more "natural" in pixels
+  diffEnd: Coordinate; // slight randomisation of ending position in pixels
 };
 
 export function createStrikeData(): StrikeData {
@@ -315,7 +316,7 @@ export function createMiniMaxResult(): MiniMaxResult {
 export type MiniMaxResult = {
   score: number; // Best score found.
   depth: number; // Depth.
-  moves: Position[]; // Moves that lead to this result.
+  moves: Coordinate[]; // Moves that lead to this result.
 };
 
 /////////
