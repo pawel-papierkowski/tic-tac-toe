@@ -22,7 +22,7 @@ export function resolvePlayerSymbol(gameState: Ref<GameState>): EnCellState {
 }
 
 /**
- * Delay execution.
+ * Wait some time before continuing.
  * Usage: await delay(gameConfig.aiWait);
  * @param ms How long delay is supposed to be in milliseconds.
  * @returns Promise.

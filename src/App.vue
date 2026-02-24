@@ -6,22 +6,26 @@ import { gameFundProp } from '@/code/data/data';
 import ViewMainMenu from '@/components/ViewMainMenu.vue';
 import ViewTicTacToe from '@/components/ViewTicTacToe.vue';
 
-onMounted(() => {
-  preloadImages();
+onMounted(async () => {
+  //await preloadImages();
 });
 
 // Default game state.
 const gameState = ref<GameState>(createGameState());
 
-// Preload images - should solve Firefox issue with delayed image showing.
-function preloadImages() {
+// Preload images - should solve Firefox issue with images that show delayed.
+async function preloadImages() {
   const base = import.meta.env.BASE_URL;
-  const images = ['/cell_0.svg', '/cell_1.svg', '/cell_2.svg', '/cell_3.svg'];
+  const images = ['/cell_2.svg', '/cell_3.svg'];
 
-  images.forEach((src) => {
-    const img = new Image();
-    img.src = base + src;
-  });
+  // Use fetch to ensure the resources are actually downloaded and cached.
+  const promises = images.map((src) =>
+    fetch(base + src).catch(() => {
+      console.warn(`Failed to preload ${src}!`);
+    }),
+  );
+
+  await Promise.all(promises);
 }
 </script>
 

@@ -12,7 +12,7 @@ Vue.js: 3.5.27
 
 ## Bugs
 
-None known.
-
-## TODO
-- Review of codebase.
+- On Firefox, sometimes there is delay in showing crosses/naughts images for unknown reason.
+  Used measure (preloading images in index.html and in App.vue) maybe worked?
+  Hard to test as it is unreliable, but using fetch() looks better. Issue is that now
+  Issue does not seem to happen on Chrome.
