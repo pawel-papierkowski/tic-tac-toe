@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tic Tac Toe</title>
 
-    <!-- Prefetch SVG images to prevent Firefox delay on first load of these images. -->
+    <!-- Prefetch SVG images to prevent delay on first load of these images (we do not use preload due to console pollution with spurious warnings). Firefox issue. -->
     <link rel="prefetch" href="/cell_2.svg" as="image" type="image/svg+xml">
     <link rel="prefetch" href="/cell_3.svg" as="image" type="image/svg+xml">
   </head>
