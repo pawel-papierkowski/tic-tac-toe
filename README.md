@@ -12,7 +12,8 @@ Vue.js: 3.5.27
 
 ## Bugs
 
-- On Firefox, sometimes there is delay in showing crosses/naughts images for unknown reason.
-  Used measure (preloading images in index.html and in App.vue) maybe worked? Firefox complaints about it, though.
-  Hard to test as it is unreliable, but using fetch() looks better.
+- On Firefox, sometimes there is delay in showing images of crosses/naughts when they should be shown for first time. Subsequent use works fine.
+  Issue is fixed by inserting preloaded images in index.html:
+  <link rel="preload" href="/cell_2.svg" as="image" type="image/svg+xml">
+  It works, but for some reason Firefox sends warnings about not used assets on console. Hopefully, changing preload to prefetch solves log pollution while still removing delay.
   Issue does not seem to happen on Chrome.
