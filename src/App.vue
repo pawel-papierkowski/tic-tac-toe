@@ -26,7 +26,10 @@ const gameState = ref<GameState>(createGameState());
     </template>
   </main>
 
-  <footer>{{ gameFundProp.author }} v. {{ gameFundProp.version }} {{ gameFundProp.build }}</footer>
+  <footer>
+    <p>Repository: <a href="https://github.com/pawel-papierkowski/tic-tac-toe" target="_blank">https://github.com/pawel-papierkowski/tic-tac-toe</a></p>
+    <p>{{ gameFundProp.author }} v. {{ gameFundProp.version }} {{ gameFundProp.build }}</p>
+  </footer>
 </template>
 
 <style scoped>
@@ -38,7 +41,7 @@ h1 {
 }
 
 footer {
-  font-size: 10px;
+  font-size: 11px;
   text-align: center;
 }
 
