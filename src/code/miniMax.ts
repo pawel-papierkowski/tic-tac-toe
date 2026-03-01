@@ -17,7 +17,7 @@
 import type { Line3, MiniMaxResult, Coordinate } from '@/code/data/types.ts';
 import { createMiniMaxResult } from '@/code/data/types.ts';
 import { EnCellState } from '@/code/data/enums.ts';
-import { gameFundProp, cellStateDescr, miniMaxScoring, line3array } from '@/code/data/data.ts';
+import { gameProp, cellStateDescr, miniMaxScoring, line3array } from '@/code/data/data.ts';
 
 /**
  * Resolve minimax score based of given state of board.
@@ -65,8 +65,8 @@ function recursiveMiniMax(who: EnCellState, isYou : boolean, currDepth: number, 
   }
 
   const results : MiniMaxResult[] = [];
-  for (let nextX=0; nextX<gameFundProp.boardSize; nextX++) { // columns
-    for (let nextY=0; nextY<gameFundProp.boardSize; nextY++) { // rows
+  for (let nextX=0; nextX<gameProp.boardSize; nextX++) { // columns
+    for (let nextY=0; nextY<gameProp.boardSize; nextY++) { // rows
       if (board[nextX]![nextY] !== EnCellState.Empty) continue; // cannot make move here
 
       board[nextX]![nextY] = who; // Make move as CURRENT player.
@@ -128,10 +128,10 @@ function isBetterResult( isYou: boolean, result: MiniMaxResult, bestResult: Mini
  * @param board Board state.
  */
 function checkWin(who: EnCellState, board: EnCellState[][]) : boolean {
-  for (let x=0; x<gameFundProp.boardSize; x++) { // columns
+  for (let x=0; x<gameProp.boardSize; x++) { // columns
     if (board[x]![0] === who && board[x]![1] === who && board[x]![2] === who) return true;
   }
-  for (let y=0; y<gameFundProp.boardSize; y++) { // rows
+  for (let y=0; y<gameProp.boardSize; y++) { // rows
     if (board[0]![y] === who && board[1]![y] === who && board[2]![y] === who) return true;
   }
   // diagonals
@@ -146,8 +146,8 @@ function checkWin(who: EnCellState, board: EnCellState[][]) : boolean {
  * @returns True if board is in draw state, otherwise false.
  */
 function checkDraw(board: EnCellState[][]) : boolean {
-  for (let x=0; x<gameFundProp.boardSize; x++) { // columns
-    for (let y=0; y<gameFundProp.boardSize; y++) { // rows
+  for (let x=0; x<gameProp.boardSize; x++) { // columns
+    for (let y=0; y<gameProp.boardSize; y++) { // rows
       if (board[x]![y] === EnCellState.Empty) return false; // at least one empty cell
     }
   }

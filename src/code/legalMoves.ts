@@ -9,7 +9,7 @@ import type { Ref } from 'vue';
 import type { GameState, LegalMove, PointsData, MoveProps, MiniMaxResult } from '@/code/data/types.ts';
 import { createLegalMove } from '@/code/data/types.ts';
 import { EnCellState, EnDifficulty } from '@/code/data/enums.ts';
-import { defScoringData, weightData, gameConfig, gameFundProp, miniMaxScoring } from '@/code/data/data.ts'; // cellStateDescr
+import { defScoringData, weightData, gameConfig, gameProp, miniMaxScoring } from '@/code/data/data.ts'; // cellStateDescr
 import { resolveMiniMax } from '@/code/miniMax.ts';
 
 const CELL_FIRST = 0; // for X and Y
@@ -34,8 +34,8 @@ export function resolveAllLegalMoves(gameState: Ref<GameState>, who: EnCellState
   // Game is simple enough that we can just brute-force it.
   // Find all legal moves and assign scoring data to each one.
   const legalMoves: LegalMove[] = []; // empty array
-  for (let x = 0; x < gameFundProp.boardSize; x++) {
-    for (let y = 0; y < gameFundProp.boardSize; y++) {
+  for (let x = 0; x < gameProp.boardSize; x++) {
+    for (let y = 0; y < gameProp.boardSize; y++) {
       if (gameState.value.board.cells[x]![y] !== EnCellState.Empty) continue; // Any empty cell is legal move.
       const legalMove = resolveLegalMove(gameState, who, x, y, miniMaxResult);
       legalMoves.push(legalMove);

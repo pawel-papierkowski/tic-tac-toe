@@ -2,7 +2,7 @@ import type { Ref } from 'vue';
 import type { GameState, LegalMove } from './data/types.ts';
 import { createStrikeData } from './data/types.ts';
 import { EnDifficulty, EnWhoFirst, EnGameStatus, EnCellState, EnPlayerType } from '@/code/data/enums.ts';
-import { gameFundProp } from './data/data.ts';
+import { gameProp } from './data/data.ts';
 import { resolvePlayerSymbol } from '@/code/common.ts';
 import { resolveAllLegalMoves } from '@/code/legalMoves.ts';
 import { fillDebugData } from '@/code/debug.ts';
@@ -347,8 +347,8 @@ function checkBottomRightCorner(gameState: Ref<GameState>): boolean {
  * @returns True if we have draw, otherwise false.
  */
 export function checkDrawState(gameState: Ref<GameState>): boolean {
-  for (let x = 0; x < gameFundProp.boardSize; x++) {
-    for (let y = 0; y < gameFundProp.boardSize; y++) {
+  for (let x = 0; x < gameProp.boardSize; x++) {
+    for (let y = 0; y < gameProp.boardSize; y++) {
       if (gameState.value.board.cells[x]![y] !== EnCellState.Empty) continue;
       // Any empty cell is legal move. That also means there is no draw.
       return false;

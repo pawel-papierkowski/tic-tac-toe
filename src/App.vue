@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { createGameState, type GameState } from '@/code/data/types';
-import { gameFundProp } from '@/code/data/data';
+import { projectProp } from '@/code/data/data';
 
 import ViewMainMenu from '@/components/ViewMainMenu.vue';
 import ViewTicTacToe from '@/components/ViewTicTacToe.vue';
@@ -13,7 +13,7 @@ const gameState = ref<GameState>(createGameState());
 
 <template>
   <header>
-    <h1>{{ gameFundProp.title }}</h1>
+    <h1>{{ projectProp.title }}</h1>
   </header>
 
   <main>
@@ -28,7 +28,7 @@ const gameState = ref<GameState>(createGameState());
 
   <footer>
     <p>Repository: <a href="https://github.com/pawel-papierkowski/tic-tac-toe" target="_blank">https://github.com/pawel-papierkowski/tic-tac-toe</a></p>
-    <p>{{ gameFundProp.author }} v. {{ gameFundProp.version }} {{ gameFundProp.build }}</p>
+    <p>&copy; {{ projectProp.dateRange }} {{ projectProp.author }} v. {{ projectProp.version }} {{ projectProp.build }}</p>
   </footer>
 </template>
 
@@ -43,6 +43,7 @@ h1 {
 footer {
   font-size: 11px;
   text-align: center;
+  margin: 4px;
 }
 
 /* Smaller on mobile */
