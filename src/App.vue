@@ -28,7 +28,7 @@ const gameState = ref<GameState>(createGameState());
 
   <footer>
     <p>Repository: <a href="https://github.com/pawel-papierkowski/tic-tac-toe" target="_blank">https://github.com/pawel-papierkowski/tic-tac-toe</a></p>
-    <p>&copy; {{ projectProp.dateRange }} {{ projectProp.author }} v. {{ projectProp.version }} {{ projectProp.build }}</p>
+    <p>&copy; {{ projectProp.dateRange }} {{ projectProp.author }} | v. {{ projectProp.version }} {{ projectProp.build }}</p>
   </footer>
 </template>
 

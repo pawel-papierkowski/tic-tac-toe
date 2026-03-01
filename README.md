@@ -7,8 +7,8 @@ This is fully functional Tic-Tac-Toe game, including AI difficulty for perfect p
 
 ## Used
 
-Node.js: 24.13.0
-Vue.js: 3.5.27
+- Node.js: 24.13.0
+- Vue.js: 3.5.27
 
 ## Bugs
 
