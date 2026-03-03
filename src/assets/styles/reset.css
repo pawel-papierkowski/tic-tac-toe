@@ -16,9 +16,6 @@ html {
   font-size: var(--font-size-base);
   font-weight: 400;
 
-  color: var(--color-text);
-  background-color: var(--color-background);
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased; /* Smoother text on macOS */
