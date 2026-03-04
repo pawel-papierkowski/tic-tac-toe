@@ -4,7 +4,7 @@ import { mountWithModel } from './utils/mounting.ts';
 import { createGameState } from './../../src/code/data/types.ts';
 import { EnDifficulty, EnWhoFirst } from './../../src/code/data/enums.ts';
 
-import ViewMainMenu from '@/components/ViewMainMenu.vue';
+import ViewMainMenu from '@/views/ViewMainMenu.vue';
 
 describe('ViewMainMenu', () => {
   it('displays "difficulty" setting', () => {
