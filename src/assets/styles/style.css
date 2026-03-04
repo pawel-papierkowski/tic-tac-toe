@@ -24,8 +24,11 @@ body {
   display: grid;
   grid-template-columns: 1fr 2fr;
   gap: 10px;
+
   width: 100%;
+
   margin: 6px 0px;
+  padding: 5px;
 }
 
 .menu label {

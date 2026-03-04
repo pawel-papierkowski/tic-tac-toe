@@ -3,8 +3,8 @@ import { ref } from 'vue';
 import { createGameState, type GameState } from '@/code/data/types';
 import { projectProp } from '@/code/data/data';
 
-import ViewMainMenu from '@/components/ViewMainMenu.vue';
-import ViewTicTacToe from '@/components/ViewTicTacToe.vue';
+import ViewMainMenu from '@/views/ViewMainMenu.vue';
+import ViewTicTacToe from '@/views/ViewTicTacToe.vue';
 
 // Default game state.
 const gameState = ref<GameState>(createGameState());

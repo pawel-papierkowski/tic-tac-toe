@@ -1,0 +1,10 @@
+<template>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+    <g stroke="#808080" stroke-width="10" stroke-linecap="round">
+      <line x1="10" y1="10" x2="10" y2="190" />
+      <line x1="10" y1="10" x2="190" y2="10" />
+      <line x1="190" y1="10" x2="190" y2="190" />
+      <line x1="190" y1="190" x2="10" y2="190" />
+    </g>
+  </svg>
+</template>

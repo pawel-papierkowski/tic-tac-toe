@@ -9,7 +9,6 @@ const _props = defineProps<{
   x: number;
   y: number;
 }>();
-
 </script>
 
 <template>

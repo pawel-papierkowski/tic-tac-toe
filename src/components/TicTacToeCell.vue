@@ -5,9 +5,11 @@ import type { GameState } from '@/code/data/types.ts';
 import { EnCellState } from '@/code/data/enums.ts';
 import { humanMove } from '@/code/ticTacToe.ts';
 
-import CellDebug from './CellDebug.vue';
+import CellContent from '@/components/CellContent.vue';
+import CellDebug from '@/components/CellDebug.vue';
 
 const gameState = defineModel<GameState>({ required: true });
+
 const props = defineProps<{
   x: number;
   y: number;
@@ -23,10 +25,6 @@ const cellValue = computed<EnCellState>(() => {
   return rowData ? (rowData[props.y] ?? fallback) : fallback;
 });
 
-const imageLink = computed<string>(() => {
-  return import.meta.env.BASE_URL + `/cell_${cellValue.value}.svg`;
-});
-
 /**
  * Human player clicked on cell. Verify if player is allowed to do it and if so, make a move.
  */
@@ -37,7 +35,7 @@ async function clickOnCell() {
 
 <template>
   <div :id="cellId" class="cell-filled" v-if="cellValue !== EnCellState.Empty">
-    <img :src="imageLink" class="cell-image" />
+    <CellContent :cellValue="cellValue" />
   </div>
   <div :id="cellId" class="cell-empty" @click="clickOnCell()" v-else>
     <CellDebug v-model="gameState" :x="x" :y="y" />
