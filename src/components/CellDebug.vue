@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { GameState } from '@/code/data/types.ts';
-import { playerTypeDescr } from '@/code/data/data.ts';
+import { playerTypeDescr } from '@/code/data/enums.ts';
 
 const isDev = import.meta.env.DEV;
 const gameState = defineModel<GameState>({ required: true });

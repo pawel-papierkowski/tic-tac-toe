@@ -16,8 +16,8 @@
  */
 import type { Line3, MiniMaxResult, Coordinate } from '@/code/data/types.ts';
 import { createMiniMaxResult } from '@/code/data/types.ts';
-import { EnCellState } from '@/code/data/enums.ts';
-import { gameProp, cellStateDescr, miniMaxScoring, line3array } from '@/code/data/data.ts';
+import { EnCellState, cellStateDescr } from '@/code/data/enums.ts';
+import { gameProp, miniMaxScoring, line3array } from '@/code/data/data.ts';
 
 /**
  * Resolve minimax score based of given state of board.

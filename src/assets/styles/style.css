@@ -5,7 +5,7 @@
 /* Settings for globally used elements. */
 
 body {
-  /* Game completely centers its content in browser window. */
+  /* Game centers in middle its content in browser window. */
   display: flex;
   justify-content: center; /* Horizontal */
   align-items: start;      /* Vertical */

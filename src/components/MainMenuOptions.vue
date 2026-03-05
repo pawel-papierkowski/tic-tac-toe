@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { GameState } from '@/code/data/types.ts';
 import { EnWhoFirst } from '@/code/data/enums.ts';
-import { difficultyDescr, whoFirstDescr } from '@/code/data/data.ts';
+import { difficultyDescr, whoFirstDescr } from '@/code/data/enums.ts';
 
 const gameState = defineModel<GameState>({ required: true });
 

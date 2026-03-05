@@ -150,6 +150,10 @@ export function createGameBoard(): GameBoard {
   };
 }
 
+// ////////////////
+// Game statistics.
+// ////////////////
+
 type GameStatistics = {
   round: number;
   moveCount: number;
@@ -188,21 +192,21 @@ export function createGameStatistics(): GameStatistics {
 // ///////////////////////
 
 export type GameState = {
-  view: GameView;
-  settings: GameSettings;
+  view: GameView;  // what should be shown on screen
+  settings: GameSettings;  // determined in main menu
   debugSettings: DebugSettings;
-  board: GameBoard;
-  statistics: GameStatistics;
+  board: GameBoard; // reset every round (and so also every game)
+  statistics: GameStatistics; // reset every game
 };
 
 /** Create default game state. Easy difficulty and first player is selected randomly. */
 export function createGameState(): GameState {
   return {
-    view: createGameView(), // what should be shown on screen
-    settings: createGameSettings(), // determined in main menu
+    view: createGameView(),
+    settings: createGameSettings(),
     debugSettings: createDebugSettings(),
-    board: createGameBoard(), // reset every round (and so also every game)
-    statistics: createGameStatistics(), // reset every game
+    board: createGameBoard(),
+    statistics: createGameStatistics(),
   };
 }
 

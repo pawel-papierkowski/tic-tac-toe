@@ -2,7 +2,7 @@
  * Variables.                   *
  ********************************/
 
-/* Note it is overkill for such simple app, but I want to use accepted convention for Vue projects from the start. */
+/* Note it is overkill for such simple app, but I want to use accepted convention for web projects from the start. */
 :root {
   /* Colors */
   --color-primary: #3498db;

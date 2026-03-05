@@ -6,6 +6,6 @@
  * It is fine performance-wise, as Vue pre-assembles all CSSs into one file anyway.
  * This file is loaded in main.ts, ensuring it is global CSS.
  */
-@import url("variables.css");
-@import url("reset.css");
-@import url("style.css");
+@import url("variables.css"); /* Contains variables and themes. */
+@import url("reset.css"); /* Contains reset styles. */
+@import url("style.css"); /* Contains style specific to this project. */
