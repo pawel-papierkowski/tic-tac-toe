@@ -1,9 +1,10 @@
 # Tic-Tac-Toe
 
 Very simple project showing off the very basics of Vue frontend project. Basically step up from Hello World.
-URL of deployed app: https://pawel-papierkowski.github.io/tic-tac-toe/
 
 This is fully functional Tic-Tac-Toe game, including AI difficulty for perfect play using miniMax algorithm.
+
+Link to webpage: https://pawel-papierkowski.github.io/tic-tac-toe/
 
 ## Used
 
