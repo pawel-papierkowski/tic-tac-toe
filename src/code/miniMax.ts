@@ -80,7 +80,7 @@ function recursiveMiniMax(who: EnCellState, isYou : boolean, currDepth: number, 
       board[nextX]![nextY] = EnCellState.Empty;
     }
   }
-  const bestResult = evaluateAllResults(results, isYou, currDepth);
+  const bestResult = findBestResult(results, isYou, currDepth);
   //console.log("Best (non-terminal) result: ", bestResult);
   return bestResult;
 }
@@ -92,7 +92,7 @@ function recursiveMiniMax(who: EnCellState, isYou : boolean, currDepth: number, 
  * @param currDepth Current depth. Starts at 0 and increments for every recursive call.
  * @returns Best result found.
  */
-function evaluateAllResults(results: MiniMaxResult[], isYou: boolean, currDepth: number) : MiniMaxResult {
+function findBestResult(results: MiniMaxResult[], isYou: boolean, currDepth: number) : MiniMaxResult {
   let bestResult = createMiniMaxResult();
   bestResult.depth = currDepth;
   bestResult.score = isYou ? -miniMaxScoring.max : miniMaxScoring.max;
@@ -111,7 +111,7 @@ function evaluateAllResults(results: MiniMaxResult[], isYou: boolean, currDepth:
  * @param isYou True if maximizing, otherwise it is minimizing.
  * @returns True if given result is better than current best result, otherwise false.
  */
-function isBetterResult( isYou: boolean, result: MiniMaxResult, bestResult: MiniMaxResult): boolean {
+function isBetterResult(isYou: boolean, result: MiniMaxResult, bestResult: MiniMaxResult): boolean {
   // First, tie logic: we prefer faster wins.
   if (result.score === bestResult.score) {
     if (result.depth <= bestResult.depth) return true;
