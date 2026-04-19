@@ -4,6 +4,12 @@ Very simple project showing off the very basics of Vue frontend project. Basical
 
 This is fully functional **Tic-Tac-Toe game**, including AI difficulty for perfect play using **MiniMax** algorithm.
 
+## Basic info
+
+Author: Paweł Papierkowski
+
+Date: February 2026
+
 Link to webpage: https://pawel-papierkowski.github.io/tic-tac-toe/
 
 ## Used
